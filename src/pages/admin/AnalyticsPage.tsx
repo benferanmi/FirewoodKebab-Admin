@@ -76,13 +76,13 @@ export default function AnalyticsPage() {
   );
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
   const uniqueCustomers = customerStats?.totalCustomers || 0;
-
+ 
   // Calculate percentage changes (you may want to compare with previous period)
   const orderChange = 12.5; // TODO: Calculate from previous period
   const revenueChange = 18.2; // TODO: Calculate from previous period
   const avgOrderChange = 3.1; // TODO: Calculate from previous period
   const customerChange = 7.4; // TODO: Calculate from previous period
-
+ 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
               key={period}
               variant={
                 analyticsFilters.period === period ? "secondary" : "ghost"
-              }
+              } 
               size="sm"
               className="text-xs h-8"
               onClick={() => setAnalyticsFilters({ period })}
