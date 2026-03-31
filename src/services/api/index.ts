@@ -1,0 +1,13 @@
+export { authAPI } from "./auth";
+export { dashboardAPI } from "./dashboard";
+export { ordersAPI } from "./orders";
+export { menuAPI } from "./menu";
+export { customersAPI } from "./customers";
+export { promotionsAPI } from "./promotions";
+export { reviewsAPI } from "./reviews";
+export { analyticsAPI } from "./analytics";
+export { teamAPI } from "./team";
+export { settingsAPI } from "./settings";
+export { contentAPI } from "./content";
+export { notificationsAPI } from "./notifications";
+export { default as apiClient } from "./client";
