@@ -98,6 +98,7 @@ export interface Order {
   _id: string;
   orderNumber: string;
   userId: UserData;
+  guestName?: string;
   items: {
     menuItemId: string;
     menuItemName: string;

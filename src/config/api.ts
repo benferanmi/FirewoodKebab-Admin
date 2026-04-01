@@ -1,5 +1,6 @@
 // Base API URL — change this to your actual backend
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 export const API_ENDPOINTS = {
   // Auth
@@ -13,6 +14,10 @@ export const API_ENDPOINTS = {
   DASHBOARD_REVENUE: "/admin/dashboard/revenue",
   DASHBOARD_TOP_ITEMS: "/admin/dashboard/top-items",
   DASHBOARD_CUSTOMER_STATS: "/admin/dashboard/customer-stats",
+  DASHBOARD_COMPREHENSIVE: "/admin/dashboard/comprehensive-stats",
+  DASHBOARD_ORDER_ANALYTICS: "/admin/dashboard/order-analytics",
+  DASHBOARD_ORDER_STATS: "/admin/dashboard/order-stats",
+  DASHBOARD_PAYMENT_STATS: "/admin/dashboard/payment-stats",
 
   // Orders
   ORDERS: "/admin/orders",
@@ -26,7 +31,8 @@ export const API_ENDPOINTS = {
   MENU_CATEGORIES_REORDER: "/admin/menu/categories/reorder",
   MENU_ITEMS: "/admin/menu/items",
   MENU_ITEM: (id: string) => `/admin/menu/items/${id}`,
-  MENU_ITEM_AVAILABILITY: (id: string) => `/admin/menu/items/${id}/availability`,
+  MENU_ITEM_AVAILABILITY: (id: string) =>
+    `/admin/menu/items/${id}/availability`,
   MENU_ITEMS_BULK_AVAILABILITY: "/admin/menu/items/bulk-availability",
 
   // Customers
