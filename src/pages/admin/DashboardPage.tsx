@@ -590,8 +590,8 @@ export default function DashboardPage() {
                       <OrderStatusBadge status={order.status} />
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {order.userId.firstName ||
-                        order.userId.lastName ||
+                      {order.userId?.firstName ||
+                        order.userId?.lastName ||
                         order.guestName ||
                         "Guest"}
                     </p>
