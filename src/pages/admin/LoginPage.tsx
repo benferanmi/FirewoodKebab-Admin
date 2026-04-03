@@ -65,22 +65,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sidebar p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f9f7f5] p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sidebar-primary shadow-lg shadow-sidebar-primary/25">
             <ChefHat className="h-7 w-7 text-sidebar-primary-foreground" />
           </div>
-          <h1 className="text-xl font-bold text-sidebar-accent-foreground">
+          <h1 className="text-xl font-bold text-black">
             Firewoodkebabadmin
           </h1>
-          <p className="mt-1 text-sm text-sidebar-foreground/60">
+          <p className="mt-1 text-sm text-sidebar-foreground/90">
             Sign in to your dashboard
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="rounded-xl bg-sidebar-accent/50 p-6 space-y-4 border border-sidebar-border">
+        <form onSubmit={handleSubmit(onSubmit)}  className=" rounded-xl bg-white p-6 space-y-4 shadow-[var(--shadow-card)] border border-border">
+          <div className="space-y-2">
             <div className="space-y-2">
               <Label className="text-xs font-medium text-sidebar-foreground">
                 Email
@@ -88,7 +88,7 @@ export default function LoginPage() {
               <Input
                 type="email"
                 {...register("email")}
-                className="bg-sidebar border-sidebar-border text-sidebar-accent-foreground placeholder:text-sidebar-foreground/40 focus:border-sidebar-primary"
+                className="bg-sidebar/0 border-sidebar-border/10 text-black placeholder:text-sideqbar-foreground/40 focus:border-sidebar-primary"
                 placeholder="admin@restaurant.com"
               />
               {errors.email && (
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 pb-4">
               <Label className="text-xs font-medium text-sidebar-foreground">
                 Password
               </Label>
@@ -105,13 +105,13 @@ export default function LoginPage() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
-                  className="bg-sidebar border-sidebar-border text-sidebar-accent-foreground pr-10 placeholder:text-sidebar-foreground/40 focus:border-sidebar-primary"
+                  className="bg-sidebar/0 border-sidebar-border/10 text-black pr-10 placeholder:text-sidebar-foreground/40 focus:border-sidebar-primary"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/50 hover:text-sidebar-foreground"
+                  className="space-y-4 absolute right-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/50 hover:text-sidebar-foreground"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -136,9 +136,9 @@ export default function LoginPage() {
             {isSubmitting ? "Signing in..." : "Sign In"}
           </Button>
 
-          <p className="text-center text-[11px] text-sidebar-foreground/40">
+          {/* <p className="text-center text-[11px] text-sidebar-foreground/40">
             Demo: superadmin@example.com / password123
-          </p>
+          </p> */}
         </form>
       </div>
     </div>

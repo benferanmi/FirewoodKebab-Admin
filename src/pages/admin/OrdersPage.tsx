@@ -131,8 +131,8 @@ export default function OrdersPage() {
                 >
                   <td className="px-4 py-3 text-sm font-mono font-medium text-foreground">{order.orderNumber}</td>
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-foreground">{order.userId.firstName} {order.userId.lastName}</p>
-                    <p className="text-xs text-muted-foreground">{order.userId.phone}</p>
+                    <p className="text-sm font-medium text-foreground">{order.userId?.firstName} {order.userId?.lastName}</p>
+                    <p className="text-xs text-muted-foreground">{order.userId?.phone}</p>
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{order.items.length} items</td>
                   <td className="px-4 py-3 text-sm font-semibold font-mono text-foreground">${order.total.toLocaleString()}</td>

@@ -1,5 +1,15 @@
 import { useRef, useState } from "react";
-import { Plus, Search, Star, Edit2, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Star,
+  Edit2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,14 +54,32 @@ import { MenuItem } from "@/types/admin";
 import { CreateMenuItemRequest, MenuCategory } from "@/services/api/menu";
 import { toast } from "sonner";
 
+const DIETARY_TAGS = ["vegan", "halal", "gluten-free"] as const;
+const PAGE_SIZE_OPTIONS = [12, 24, 48];
+
 export default function MenuPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [dietaryFilter, setDietaryFilter] = useState<string[]>([]);
+  const [featuredFilter, setFeaturedFilter] = useState<
+    "all" | "true" | "false"
+  >("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<
+    "all" | "true" | "false"
+  >("all");
+  const [cateringFilter, setCateringFilter] = useState<
+    "all" | "true" | "false"
+  >("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
+  const [showFilters, setShowFilters] = useState(false);
+
   const [addDialog, setAddDialog] = useState(false);
   const [manageCategoriesDialog, setManageCategoriesDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(
     null,
   );
+
   const debouncedSearch = useDebounce(search, 300);
   const { hasPermission } = useAuthStore();
   const [imageUploading, setImageUploading] = useState(false);
@@ -65,30 +93,57 @@ export default function MenuPage() {
   const [categoryImage, setCategoryImage] = useState("");
   const [categoryImageUploading, setCategoryImageUploading] = useState(false);
 
-  const { data: itemsData } = useMenuItems({
+  // Build filters for API
+  const apiFilters = {
     category: categoryFilter === "all" ? undefined : categoryFilter,
-  });
+    search: debouncedSearch || undefined,
+    dietary: dietaryFilter.length > 0 ? dietaryFilter.join(",") : undefined,
+    featured: featuredFilter === "all" ? undefined : featuredFilter,
+    isAvailable: availabilityFilter === "all" ? undefined : availabilityFilter,
+    isCatering: cateringFilter === "all" ? undefined : cateringFilter,
+    page,
+    limit,
+  };
+
+  const { data: itemsData, isLoading: itemsLoading } = useMenuItems(apiFilters);
   const { data: categories } = useMenuCategories();
   const toggleMutation = useToggleAvailability();
   const createMutation = useCreateMenuItem();
   const deleteMutation = useDeleteMenuItem();
   const updateMenuItem = useUpdateMenuItem();
 
-  // Category mutations
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
   const updateCategoryMutation = useUpdateMenuCategory();
 
   const items = itemsData?.data || [];
+  const pagination = itemsData?.pagination;
+  const totalPages = pagination ? Math.ceil(pagination.total / limit) : 1;
 
-  const filtered = items.filter((item) => {
-    if (
-      debouncedSearch &&
-      !item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-    )
-      return false;
-    return true;
-  });
+  // Count active filters for badge
+  const activeFilterCount = [
+    categoryFilter !== "all",
+    dietaryFilter.length > 0,
+    featuredFilter !== "all",
+    availabilityFilter !== "all",
+    cateringFilter !== "all",
+  ].filter(Boolean).length;
+
+  const resetFilters = () => {
+    setCategoryFilter("all");
+    setDietaryFilter([]);
+    setFeaturedFilter("all");
+    setAvailabilityFilter("all");
+    setCateringFilter("all");
+    setSearch("");
+    setPage(1);
+  };
+
+  // Reset page when filters change
+  const handleFilterChange = (fn: () => void) => {
+    fn();
+    setPage(1);
+  };
 
   const form = useForm<MenuItemFormData>({
     resolver: zodResolver(menuItemSchema),
@@ -164,7 +219,6 @@ export default function MenuPage() {
     if (!categoryName.trim()) return;
 
     if (editingCategory) {
-      // Update
       updateCategoryMutation.mutate(
         {
           id: editingCategory._id,
@@ -182,7 +236,6 @@ export default function MenuPage() {
         },
       );
     } else {
-      // Create
       createCategoryMutation.mutate(
         {
           name: categoryName,
@@ -261,20 +314,18 @@ export default function MenuPage() {
           <Label>Name</Label>
           <Input {...form.register("name")} />
         </div>
-
         <div>
           <Label>Description</Label>
           <Textarea {...form.register("description")} />
         </div>
-
         <div>
           <Label>Price</Label>
           <Input
             type="number"
+            step="0.01"
             {...form.register("price", { valueAsNumber: true })}
           />
         </div>
-
         <div className="space-y-2">
           <Label className="text-xs">Image</Label>
           <input
@@ -308,15 +359,14 @@ export default function MenuPage() {
             )}
           </div>
         </div>
-
         <div>
           <Label>Category</Label>
           <Select
             value={form.watch("categoryId")}
             onValueChange={(v) => {
-              const selected = categories?.find((c) => c._id === v);
+              const s = categories?.find((c) => c._id === v);
               form.setValue("categoryId", v);
-              form.setValue("categoryName", selected?.name ?? "");
+              form.setValue("categoryName", s?.name ?? "");
             }}
           >
             <SelectTrigger className="h-9 text-sm">
@@ -331,7 +381,6 @@ export default function MenuPage() {
             </SelectContent>
           </Select>
         </div>
-
         <div>
           <Label>Stock</Label>
           <Input
@@ -339,22 +388,19 @@ export default function MenuPage() {
             {...form.register("stock", { valueAsNumber: true })}
           />
         </div>
-
         <div>
           <Label>Dietary Tags</Label>
           <div className="flex gap-4">
-            {["vegan", "halal", "gluten-free"].map((tag) => (
+            {DIETARY_TAGS.map((tag) => (
               <div key={tag} className="flex items-center gap-1.5">
                 <Checkbox
                   id={`edit-${tag}`}
                   checked={form.watch("dietaryTags")?.includes(tag)}
                   onCheckedChange={(checked) => {
-                    const current = form.getValues("dietaryTags") || [];
+                    const cur = form.getValues("dietaryTags") || [];
                     form.setValue(
                       "dietaryTags",
-                      checked
-                        ? [...current, tag]
-                        : current.filter((t) => t !== tag),
+                      checked ? [...cur, tag] : cur.filter((t) => t !== tag),
                     );
                   }}
                 />
@@ -365,34 +411,22 @@ export default function MenuPage() {
             ))}
           </div>
         </div>
-
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={form.watch("isAvailable")}
-              onCheckedChange={(v) => form.setValue("isAvailable", v)}
-              className="scale-75"
-            />
-            <Label className="text-xs">Available</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={form.watch("isFeatured")}
-              onCheckedChange={(v) => form.setValue("isFeatured", v)}
-              className="scale-75"
-            />
-            <Label className="text-xs">Featured</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={form.watch("isCatering")}
-              onCheckedChange={(v) => form.setValue("isCatering", v)}
-              className="scale-75"
-            />
-            <Label className="text-xs">Catering</Label>
-          </div>
+          {[
+            ["isAvailable", "Available"],
+            ["isFeatured", "Featured"],
+            ["isCatering", "Catering"],
+          ].map(([field, label]) => (
+            <div key={field} className="flex items-center gap-2">
+              <Switch
+                checked={form.watch(field as any)}
+                onCheckedChange={(v) => form.setValue(field as any, v)}
+                className="scale-75"
+              />
+              <Label className="text-xs">{label}</Label>
+            </div>
+          ))}
         </div>
-
         <DialogFooter>
           <Button
             type="submit"
@@ -424,7 +458,6 @@ export default function MenuPage() {
             </Button>
           )}
         </div>
-
         {categories && categories.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((cat) => (
@@ -489,30 +522,47 @@ export default function MenuPage() {
           <h2 className="text-lg font-semibold">Menu Items</h2>
         </div>
 
-        {/* Filters */}
+        {/* Search + top-level controls */}
         <div className="glass-card rounded-xl p-4 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search menu items..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                handleFilterChange(() => setSearch(e.target.value))
+              }
               className="pl-9 h-9 bg-muted/50 border-transparent text-sm"
             />
           </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[160px] h-9 text-sm bg-muted/50 border-transparent">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories?.map((c) => (
-                <SelectItem key={c._id} value={c._id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          {/* Filter toggle button */}
+          <Button
+            size="sm"
+            variant={showFilters ? "default" : "outline"}
+            className="h-9 text-xs gap-1.5"
+            onClick={() => setShowFilters((v) => !v)}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="ml-0.5 bg-primary-foreground text-primary rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
+
+          {activeFilterCount > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-9 text-xs text-muted-foreground"
+              onClick={resetFilters}
+            >
+              <X className="h-3.5 w-3.5 mr-1" /> Clear
+            </Button>
+          )}
+
           {hasPermission("CREATE_MENU_ITEM") && (
             <Button
               size="sm"
@@ -524,101 +574,389 @@ export default function MenuPage() {
           )}
         </div>
 
-        {/* Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.length === 0 && (
-            <p className="col-span-full text-sm text-muted-foreground text-center py-10">
-              No items found for this category.
-            </p>
-          )}
-          {filtered.map((item) => (
-            <div
-              key={item._id}
-              className={cn(
-                "glass-card rounded-xl overflow-hidden group transition-all",
-                !item.isAvailable && "opacity-60",
-              )}
-            >
-              <div className="h-36 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-3xl">🍽️</span>
-                )}
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground">
-                      {item.name}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {item.categoryName}
-                    </p>
-                  </div>
-                  <span className="text-sm font-bold font-mono text-primary">
-                    ${item.price.toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {item.description}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {item.dietaryTags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="text-[10px] px-1.5 py-0 capitalize"
+        {/* Expanded filter row */}
+        {showFilters && (
+          <div className="glass-card rounded-xl p-4 flex flex-wrap items-end gap-4">
+            {/* Category */}
+            <div className="flex flex-col gap-1.5 min-w-[150px]">
+              <Label className="text-xs text-muted-foreground">Category</Label>
+              <Select
+                value={categoryFilter}
+                onValueChange={(v) =>
+                  handleFilterChange(() => setCategoryFilter(v))
+                }
+              >
+                <SelectTrigger className="h-9 text-sm bg-muted/50 border-transparent">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories?.map((c) => (
+                    <SelectItem key={c._id} value={c._id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Availability */}
+            <div className="flex flex-col gap-1.5 min-w-[130px]">
+              <Label className="text-xs text-muted-foreground">
+                Availability
+              </Label>
+              <Select
+                value={availabilityFilter}
+                onValueChange={(v: any) =>
+                  handleFilterChange(() => setAvailabilityFilter(v))
+                }
+              >
+                <SelectTrigger className="h-9 text-sm bg-muted/50 border-transparent">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="true">Available</SelectItem>
+                  <SelectItem value="false">Unavailable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Featured */}
+            <div className="flex flex-col gap-1.5 min-w-[120px]">
+              <Label className="text-xs text-muted-foreground">Featured</Label>
+              <Select
+                value={featuredFilter}
+                onValueChange={(v: any) =>
+                  handleFilterChange(() => setFeaturedFilter(v))
+                }
+              >
+                <SelectTrigger className="h-9 text-sm bg-muted/50 border-transparent">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="true">Featured only</SelectItem>
+                  <SelectItem value="false">Not featured</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Catering */}
+            <div className="flex flex-col gap-1.5 min-w-[120px]">
+              <Label className="text-xs text-muted-foreground">Catering</Label>
+              <Select
+                value={cateringFilter}
+                onValueChange={(v: any) =>
+                  handleFilterChange(() => setCateringFilter(v))
+                }
+              >
+                <SelectTrigger className="h-9 text-sm bg-muted/50 border-transparent">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="true">Catering only</SelectItem>
+                  <SelectItem value="false">Non-catering</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Dietary tags */}
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs text-muted-foreground">
+                Dietary Tags
+              </Label>
+              <div className="flex items-center gap-3 h-9">
+                {DIETARY_TAGS.map((tag) => (
+                  <div key={tag} className="flex items-center gap-1.5">
+                    <Checkbox
+                      id={`filter-${tag}`}
+                      checked={dietaryFilter.includes(tag)}
+                      onCheckedChange={(checked) =>
+                        handleFilterChange(() =>
+                          setDietaryFilter((prev) =>
+                            checked
+                              ? [...prev, tag]
+                              : prev.filter((t) => t !== tag),
+                          ),
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={`filter-${tag}`}
+                      className="text-xs capitalize cursor-pointer"
                     >
                       {tag}
-                    </Badge>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Items per page */}
+            <div className="flex flex-col gap-1.5 min-w-[100px] ml-auto">
+              <Label className="text-xs text-muted-foreground">Per page</Label>
+              <Select
+                value={String(limit)}
+                onValueChange={(v) => {
+                  setLimit(Number(v));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-9 text-sm bg-muted/50 border-transparent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_SIZE_OPTIONS.map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n}
+                    </SelectItem>
                   ))}
-                  {item.isFeatured && (
-                    <Badge className="text-[10px] px-1.5 py-0 bg-warning/15 text-warning border-warning/25">
-                      Featured
-                    </Badge>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Active filter chips */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {categoryFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1 text-xs">
+                {categories?.find((c) => c._id === categoryFilter)?.name}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() =>
+                    handleFilterChange(() => setCategoryFilter("all"))
+                  }
+                />
+              </Badge>
+            )}
+            {availabilityFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1 text-xs">
+                {availabilityFilter === "true" ? "Available" : "Unavailable"}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() =>
+                    handleFilterChange(() => setAvailabilityFilter("all"))
+                  }
+                />
+              </Badge>
+            )}
+            {featuredFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1 text-xs">
+                {featuredFilter === "true" ? "Featured" : "Not featured"}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() =>
+                    handleFilterChange(() => setFeaturedFilter("all"))
+                  }
+                />
+              </Badge>
+            )}
+            {cateringFilter !== "all" && (
+              <Badge variant="secondary" className="gap-1 text-xs">
+                {cateringFilter === "true" ? "Catering" : "Non-catering"}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() =>
+                    handleFilterChange(() => setCateringFilter("all"))
+                  }
+                />
+              </Badge>
+            )}
+            {dietaryFilter.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="gap-1 text-xs capitalize"
+              >
+                {tag}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() =>
+                    handleFilterChange(() =>
+                      setDietaryFilter((p) => p.filter((t) => t !== tag)),
+                    )
+                  }
+                />
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {/* Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {itemsLoading && (
+            <div className="col-span-full flex justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {!itemsLoading && items.length === 0 && (
+            <p className="col-span-full text-sm text-muted-foreground text-center py-10">
+              No items found. Try adjusting your filters.
+            </p>
+          )}
+          {!itemsLoading &&
+            items.map((item) => (
+              <div
+                key={item._id}
+                className={cn(
+                  "glass-card rounded-xl overflow-hidden group transition-all",
+                  !item.isAvailable && "opacity-60",
+                )}
+              >
+                <div className="h-36 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-3xl">🍽️</span>
                   )}
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-warning text-warning" />
-                    <span className="text-xs font-medium">
-                      {item.averageRating}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      ({item.reviewCount})
+                <div className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.categoryName}
+                      </p>
+                    </div>
+                    <span className="text-sm font-bold font-mono text-primary">
+                      ${item.price.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">
-                      {item.isAvailable ? "Available" : "Unavailable"}
-                    </span>
-                    {hasPermission("EDIT_MENU_ITEM") && (
-                      <Switch
-                        checked={item.isAvailable}
-                        onCheckedChange={(checked) =>
-                          toggleMutation.mutate({
-                            id: item._id,
-                            isAvailable: checked,
-                          })
-                        }
-                        className="scale-75"
-                      />
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {item.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {item.dietaryTags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="text-[10px] px-1.5 py-0 capitalize"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                    {item.isFeatured && (
+                      <Badge className="text-[10px] px-1.5 py-0 bg-warning/15 text-warning border-warning/25">
+                        Featured
+                      </Badge>
                     )}
-
-                    {hasPermission("EDIT_MENU_ITEM") && (
-                      <Button onClick={() => setEditingItem(item)}>Edit</Button>
-                    )}
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-warning text-warning" />
+                      <span className="text-xs font-medium">
+                        {item.averageRating}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        ({item.reviewCount})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">
+                        {item.isAvailable ? "Available" : "Unavailable"}
+                      </span>
+                      {hasPermission("EDIT_MENU_ITEM") && (
+                        <Switch
+                          checked={item.isAvailable}
+                          onCheckedChange={(checked) =>
+                            toggleMutation.mutate({
+                              id: item._id,
+                              isAvailable: checked,
+                            })
+                          }
+                          className="scale-75"
+                        />
+                      )}
+                      {hasPermission("EDIT_MENU_ITEM") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs px-2"
+                          onClick={() => setEditingItem(item)}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
+
+        {/* Pagination */}
+        {pagination && totalPages > 1 && (
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-xs text-muted-foreground">
+              Showing {(page - 1) * limit + 1}–
+              {Math.min(page * limit, pagination.total)} of {pagination.total}{" "}
+              items
+            </p>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              {/* Page number buttons */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(
+                  (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1,
+                )
+                .reduce<(number | "...")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1)
+                    acc.push("...");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "..." ? (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="text-xs text-muted-foreground px-1"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={p}
+                      size="sm"
+                      variant={page === p ? "default" : "outline"}
+                      className="h-8 w-8 p-0 text-xs"
+                      onClick={() => setPage(p as number)}
+                    >
+                      {p}
+                    </Button>
+                  ),
+                )}
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add Item Dialog */}
@@ -675,9 +1013,9 @@ export default function MenuPage() {
                 <Label className="text-xs">Category</Label>
                 <Select
                   onValueChange={(v) => {
-                    const selected = categories?.find((c) => c._id === v);
+                    const s = categories?.find((c) => c._id === v);
                     form.setValue("categoryId", v);
-                    form.setValue("categoryName", selected?.name ?? "");
+                    form.setValue("categoryName", s?.name ?? "");
                   }}
                   value={form.watch("categoryId")}
                 >
@@ -738,18 +1076,18 @@ export default function MenuPage() {
             <div className="space-y-2">
               <Label className="text-xs">Dietary Tags</Label>
               <div className="flex gap-4">
-                {["vegan", "halal", "gluten-free"].map((tag) => (
+                {DIETARY_TAGS.map((tag) => (
                   <div key={tag} className="flex items-center gap-1.5">
                     <Checkbox
                       id={tag}
                       checked={form.watch("dietaryTags")?.includes(tag)}
                       onCheckedChange={(checked) => {
-                        const current = form.getValues("dietaryTags") || [];
+                        const cur = form.getValues("dietaryTags") || [];
                         form.setValue(
                           "dietaryTags",
                           checked
-                            ? [...current, tag]
-                            : current.filter((t) => t !== tag),
+                            ? [...cur, tag]
+                            : cur.filter((t) => t !== tag),
                         );
                       }}
                     />
@@ -761,22 +1099,19 @@ export default function MenuPage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={form.watch("isFeatured")}
-                  onCheckedChange={(v) => form.setValue("isFeatured", v)}
-                  className="scale-75"
-                />
-                <Label className="text-xs">Featured</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={form.watch("isAvailable")}
-                  onCheckedChange={(v) => form.setValue("isAvailable", v)}
-                  className="scale-75"
-                />
-                <Label className="text-xs">Available</Label>
-              </div>
+              {[
+                ["isFeatured", "Featured"],
+                ["isAvailable", "Available"],
+              ].map(([field, label]) => (
+                <div key={field} className="flex items-center gap-2">
+                  <Switch
+                    checked={form.watch(field as any)}
+                    onCheckedChange={(v) => form.setValue(field as any, v)}
+                    className="scale-75"
+                  />
+                  <Label className="text-xs">{label}</Label>
+                </div>
+              ))}
             </div>
             <DialogFooter>
               <Button
@@ -811,9 +1146,7 @@ export default function MenuPage() {
               onSubmit={(formValues) => {
                 updateMenuItem.mutate(
                   { id: editingItem._id, data: formValues },
-                  {
-                    onSuccess: () => setEditingItem(null),
-                  },
+                  { onSuccess: () => setEditingItem(null) },
                 );
               }}
             />
@@ -835,9 +1168,7 @@ export default function MenuPage() {
               {editingCategory ? "Edit Category" : "Create New Category"}
             </DialogTitle>
           </DialogHeader>
-
           <form onSubmit={handleSaveCategory} className="space-y-4">
-            {/* Name */}
             <div className="space-y-2">
               <Label className="text-xs">Category Name *</Label>
               <Input
@@ -847,8 +1178,6 @@ export default function MenuPage() {
                 className="h-9 text-sm"
               />
             </div>
-
-            {/* Description */}
             <div className="space-y-2">
               <Label className="text-xs">Description</Label>
               <Textarea
@@ -858,8 +1187,6 @@ export default function MenuPage() {
                 className="text-sm min-h-[60px]"
               />
             </div>
-
-            {/* Image Upload */}
             <div className="space-y-2">
               <Label className="text-xs">Image</Label>
               <input
@@ -894,7 +1221,6 @@ export default function MenuPage() {
                 )}
               </div>
             </div>
-
             <DialogFooter>
               <Button
                 type="button"
@@ -906,7 +1232,6 @@ export default function MenuPage() {
               >
                 Cancel
               </Button>
-
               {editingCategory && hasPermission("MANAGE_CATEGORIES") && (
                 <Button
                   type="button"
@@ -921,7 +1246,6 @@ export default function MenuPage() {
                   {deleteCategoryMutation.isPending ? "Deleting..." : "Delete"}
                 </Button>
               )}
-
               <Button
                 type="submit"
                 disabled={

@@ -8,13 +8,17 @@ import { toast } from "sonner";
 
 export function useMenuItems(params?: {
   category?: string;
+  search?: string;
+  dietary?: string; // comma-separated e.g. "vegan,halal"
+  featured?: string; // "true" | "false"
+  isAvailable?: string; // "true" | "false"
+  isCatering?: string; // "true" | "false"
   page?: number;
   limit?: number;
 }) {
   return useQuery({
     queryKey: ["menu", "items", params],
     queryFn: () => menuAPI.getItems(params),
-    // placeholderData: { data: mockMenuItems, pagination: undefined },
   });
 }
 
