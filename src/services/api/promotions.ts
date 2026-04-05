@@ -16,7 +16,8 @@ export interface CreateCouponRequest {
 }
 
 export interface Banner {
-  id: string;
+  _id?: string;
+  id?: string;
   title: string;
   description?: string;
   image: string;
@@ -40,33 +41,73 @@ export interface CreateBannerRequest {
   isActive: boolean;
 }
 
+// Helper to normalize _id to id
+const normalizeId = (item: any): any => {
+  if (!item) return item;
+  return {
+    ...item,
+    id: item.id || item._id,
+  };
+};
+
 export const promotionsAPI = {
   // Coupons
-  getCoupons: (params?: { page?: number; limit?: number; status?: string }) =>
-    client.get(API_ENDPOINTS.COUPONS, { params }).then((r) => r.data as { data: Coupon[]; pagination?: any }),
+  getCoupons: async (params?: { page?: number; limit?: number; status?: string }) => {
+    const response = await client.get(API_ENDPOINTS.COUPONS, { params });
+    const data = response.data.data;
+    
+    // Normalize the response
+    return {
+      data: data.data?.map(normalizeId) || data?.map?.(normalizeId) || [],
+      pagination: data.pagination,
+    };
+  },
 
-  createCoupon: (data: CreateCouponRequest) =>
-    client.post(API_ENDPOINTS.COUPONS, data).then((r) => r.data.data as Coupon),
+  createCoupon: async (data: CreateCouponRequest) => {
+    const response = await client.post(API_ENDPOINTS.COUPONS, data);
+    return normalizeId(response.data.data);
+  },
 
-  updateCoupon: (id: string, data: Partial<CreateCouponRequest>) =>
-    client.put(API_ENDPOINTS.COUPON(id), data).then((r) => r.data.data as Coupon),
+  updateCoupon: async (id: string, data: Partial<CreateCouponRequest>) => {
+    const response = await client.put(API_ENDPOINTS.COUPON(id), data);
+    return normalizeId(response.data.data);
+  },
 
-  deleteCoupon: (id: string) =>
-    client.delete(API_ENDPOINTS.COUPON(id)).then((r) => r.data),
+  deleteCoupon: async (id: string) => {
+    return client.delete(API_ENDPOINTS.COUPON(id)).then((r) => r.data);
+  },
 
-  getCouponUsage: (id: string) =>
-    client.get(API_ENDPOINTS.COUPON_USAGE(id)).then((r) => r.data),
+  getCouponUsage: async (id: string) => {
+    const response = await client.get(API_ENDPOINTS.COUPON_USAGE(id));
+    return {
+      ...response.data,
+      coupon: normalizeId(response.data.coupon),
+    };
+  },
 
   // Banners
-  getBanners: () =>
-    client.get(API_ENDPOINTS.BANNERS).then((r) => r.data.data as Banner[]),
+  getBanners: async () => {
+    const response = await client.get(API_ENDPOINTS.BANNERS);
+    
+    // Handle both array and wrapped response
+    const bannerData = Array.isArray(response.data) 
+      ? response.data 
+      : (Array.isArray(response.data.data) ? response.data.data : []);
+    
+    return bannerData.map(normalizeId);
+  },
 
-  createBanner: (data: CreateBannerRequest) =>
-    client.post(API_ENDPOINTS.BANNERS, data).then((r) => r.data.data as Banner),
+  createBanner: async (data: CreateBannerRequest) => {
+    const response = await client.post(API_ENDPOINTS.BANNERS, data);
+    return normalizeId(response.data.data);
+  },
 
-  updateBanner: (id: string, data: Partial<CreateBannerRequest>) =>
-    client.put(API_ENDPOINTS.BANNER(id), data).then((r) => r.data.data as Banner),
+  updateBanner: async (id: string, data: Partial<CreateBannerRequest>) => {
+    const response = await client.put(API_ENDPOINTS.BANNER(id), data);
+    return normalizeId(response.data.data);
+  },
 
-  deleteBanner: (id: string) =>
-    client.delete(API_ENDPOINTS.BANNER(id)).then((r) => r.data),
+  deleteBanner: async (id: string) => {
+    return client.delete(API_ENDPOINTS.BANNER(id)).then((r) => r.data);
+  },
 };

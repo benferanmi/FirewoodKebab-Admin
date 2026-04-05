@@ -6,7 +6,7 @@ export function useCoupons(params?: { page?: number; limit?: number; status?: st
   return useQuery({
     queryKey: ["promotions", "coupons", params],
     queryFn: () => promotionsAPI.getCoupons(params),
-    // placeholderData: { data: mockCoupons, pagination: undefined },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -16,10 +16,12 @@ export function useCreateCoupon() {
     mutationFn: (data: CreateCouponRequest) => promotionsAPI.createCoupon(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promotions", "coupons"] });
-      toast.success("Coupon created");
+      toast.success("Coupon created successfully");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create coupon");
+      const message = error.response?.data?.message || error.message || "Failed to create coupon";
+      toast.error(message);
+      console.error("Create coupon error:", error);
     },
   });
 }
@@ -31,10 +33,12 @@ export function useUpdateCoupon() {
       promotionsAPI.updateCoupon(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promotions", "coupons"] });
-      toast.success("Coupon updated");
+      toast.success("Coupon updated successfully");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to update coupon");
+      const message = error.response?.data?.message || error.message || "Failed to update coupon";
+      toast.error(message);
+      console.error("Update coupon error:", error);
     },
   });
 }
@@ -45,10 +49,12 @@ export function useDeleteCoupon() {
     mutationFn: (id: string) => promotionsAPI.deleteCoupon(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promotions", "coupons"] });
-      toast.success("Coupon deleted");
+      toast.success("Coupon deleted successfully");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to delete coupon");
+      const message = error.response?.data?.message || error.message || "Failed to delete coupon";
+      toast.error(message);
+      console.error("Delete coupon error:", error);
     },
   });
 }
@@ -57,7 +63,7 @@ export function useBanners() {
   return useQuery({
     queryKey: ["promotions", "banners"],
     queryFn: () => promotionsAPI.getBanners(),
-    placeholderData: [],
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -67,10 +73,29 @@ export function useCreateBanner() {
     mutationFn: (data: CreateBannerRequest) => promotionsAPI.createBanner(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promotions", "banners"] });
-      toast.success("Banner created");
+      toast.success("Banner created successfully");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create banner");
+      const message = error.response?.data?.message || error.message || "Failed to create banner";
+      toast.error(message);
+      console.error("Create banner error:", error);
+    },
+  });
+}
+
+export function useUpdateBanner() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreateBannerRequest> }) =>
+      promotionsAPI.updateBanner(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["promotions", "banners"] });
+      toast.success("Banner updated successfully");
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || error.message || "Failed to update banner";
+      toast.error(message);
+      console.error("Update banner error:", error);
     },
   });
 }
@@ -81,10 +106,12 @@ export function useDeleteBanner() {
     mutationFn: (id: string) => promotionsAPI.deleteBanner(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promotions", "banners"] });
-      toast.success("Banner deleted");
+      toast.success("Banner deleted successfully");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to delete banner");
+      const message = error.response?.data?.message || error.message || "Failed to delete banner";
+      toast.error(message);
+      console.error("Delete banner error:", error);
     },
   });
 }

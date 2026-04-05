@@ -12,7 +12,7 @@ const navItems = [
   { to: "/admin/orders", icon: ShoppingBag, label: "Orders", permission: PERMISSIONS.VIEW_ORDERS },
   { to: "/admin/menu", icon: UtensilsCrossed, label: "Menu", permission: PERMISSIONS.VIEW_MENU },
   { to: "/admin/customers", icon: Users, label: "Customers", permission: PERMISSIONS.VIEW_CUSTOMERS },
-  // { to: "/admin/promotions", icon: Tag, label: "Promotions", permission: PERMISSIONS.VIEW_PROMOTIONS },
+  { to: "/admin/promotions", icon: Tag, label: "Promotions", permission: PERMISSIONS.VIEW_PROMOTIONS },
   { to: "/admin/reviews", icon: Star, label: "Reviews", permission: PERMISSIONS.VIEW_REVIEWS },
   // { to: "/admin/analytics", icon: BarChart3, label: "Analytics", permission: PERMISSIONS.VIEW_ANALYTICS },
   { to: "/admin/team", icon: UserCog, label: "Team", permission: PERMISSIONS.MANAGE_ADMIN_USERS },
