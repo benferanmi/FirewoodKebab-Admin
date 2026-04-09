@@ -478,10 +478,7 @@ export default function CustomersPage() {
                             </Badge>
                           )}
                         </div>
-                        <p>
-                          {addr.street}, {addr.city}, {addr.state}{" "}
-                          {addr.zipCode}, {addr.country}
-                        </p>
+                         
                       </div>
                     ))}
                   </div>

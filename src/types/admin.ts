@@ -31,6 +31,7 @@ export const PERMISSIONS = {
   MANAGE_ADMIN_USERS: "MANAGE_ADMIN_USERS",
   MANAGE_CONTENT: "MANAGE_CONTENT",
   SEND_NOTIFICATIONS: "SEND_NOTIFICATIONS",
+  MANAGE_DELIVERY_ZONES: "MANAGE_DELIVERY_ZONES",
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -110,10 +111,7 @@ export interface Order {
   deliveryFee: number;
   deliveryAddress?: {
     street: string;
-    city: string;
-    state: string;
     zipCode: string;
-    country: string;
   };
   discount: number;
   total: number;
@@ -170,10 +168,7 @@ export interface Customer {
     {
       label: string;
       street: string;
-      city: string;
-      state: string;
       zipCode: string;
-      country: string;
       _id: string;
       isDefault: boolean;
     },

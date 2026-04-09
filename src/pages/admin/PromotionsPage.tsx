@@ -121,8 +121,6 @@ export default function PromotionsPage() {
       title: "",
       image: "",
       isActive: true,
-      startDate: "",
-      endDate: "",
       description: "",
       ctaText: "",
       ctaLink: "",
@@ -208,8 +206,6 @@ export default function PromotionsPage() {
       image: banner.image,
       ctaText: banner.ctaText || "",
       ctaLink: banner.ctaLink || "",
-      startDate: new Date(banner.startDate).toISOString().split("T")[0],
-      endDate: new Date(banner.endDate).toISOString().split("T")[0],
       isActive: banner.isActive,
     });
     setAddBannerDialog(true);
@@ -567,8 +563,6 @@ export default function PromotionsPage() {
                     title: "",
                     image: "",
                     isActive: true,
-                    startDate: "",
-                    endDate: "",
                     description: "",
                     ctaText: "",
                     ctaLink: "",
@@ -961,35 +955,7 @@ export default function PromotionsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs">Start Date</Label>
-                <Input
-                  type="date"
-                  {...bannerForm.register("startDate")}
-                  className="h-9 text-sm"
-                />
-                {bannerForm.formState.errors.startDate && (
-                  <p className="text-xs text-destructive">
-                    {bannerForm.formState.errors.startDate.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs">End Date</Label>
-                <Input
-                  type="date"
-                  {...bannerForm.register("endDate")}
-                  className="h-9 text-sm"
-                />
-                {bannerForm.formState.errors.endDate && (
-                  <p className="text-xs text-destructive">
-                    {bannerForm.formState.errors.endDate.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
+         
             <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
               <Checkbox
                 id="banner-active"

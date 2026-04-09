@@ -17,6 +17,7 @@ import SettingsPage from "@/pages/admin/SettingsPage";
 import ContentPage from "@/pages/admin/ContentPage";
 import NotificationsPage from "@/pages/admin/NotificationsPage";
 import NotFound from "@/pages/NotFound";
+import AdminDeliveryZonesPage from "./pages/admin/DeliveryZonePage";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="team" element={<TeamPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="delivery" element={<AdminDeliveryZonesPage />} />
             <Route path="content" element={<ContentPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
           </Route>
