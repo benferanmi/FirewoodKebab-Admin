@@ -33,9 +33,11 @@ import { useAuthStore } from "@/store/authStore";
 import CreateZoneModal from "@/components/delivery/CreateZoneModal";
 import DeleteZoneModal from "@/components/delivery/DeleteZoneModal";
 import EditZoneModal from "@/components/delivery/EditZoneModal";
-import { useAdminDeliveryZones, useToggleDeliveryZoneActive, useDeleteDeliveryZone } from "@/hooks/useDeliveryZone";
-
-
+import {
+  useAdminDeliveryZones,
+  useToggleDeliveryZoneActive,
+  useDeleteDeliveryZone,
+} from "@/hooks/useDeliveryZone"
 
 export default function AdminDeliveryZonesPage() {
   const { hasPermission } = useAuthStore();
@@ -44,11 +46,18 @@ export default function AdminDeliveryZonesPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
-  const { deliveryZoneFilters, setDeliveryZoneFilters, resetDeliveryZoneFilters } =
-    useFiltersStore();
+  const {
+    deliveryZoneFilters,
+    setDeliveryZoneFilters,
+    resetDeliveryZoneFilters,
+  } = useFiltersStore();
 
-  const { data: zonesData, isLoading, isError, refetch } =
-    useAdminDeliveryZones();
+  const {
+    data: zonesData,
+    isLoading,
+    isError,
+    refetch,
+  } = useAdminDeliveryZones();
   const toggleActive = useToggleDeliveryZoneActive();
   const deleteZone = useDeleteDeliveryZone();
 
@@ -236,7 +245,7 @@ export default function AdminDeliveryZonesPage() {
         )}
       </div>
 
-      {/* Table */}
+      {/* Table View */}
       <div className="glass-card rounded-xl overflow-hidden">
         {isLoading ? (
           <div className="p-6 space-y-3">
@@ -271,8 +280,12 @@ export default function AdminDeliveryZonesPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/50 hover:bg-transparent">
-                    <TableHead className="text-xs font-semibold">Name</TableHead>
-                    <TableHead className="text-xs font-semibold">Type</TableHead>
+                    <TableHead className="text-xs font-semibold">
+                      Name
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold">
+                      Type
+                    </TableHead>
                     <TableHead className="text-xs font-semibold text-right">
                       Fee
                     </TableHead>
@@ -292,7 +305,10 @@ export default function AdminDeliveryZonesPage() {
                 </TableHeader>
                 <TableBody>
                   {zones.map((zone) => (
-                    <TableRow key={zone._id} className="border-b border-border/50">
+                    <TableRow
+                      key={zone._id}
+                      className="border-b border-border/50"
+                    >
                       <TableCell className="py-3">
                         <div>
                           <p className="text-sm font-medium">{zone.name}</p>
@@ -320,7 +336,8 @@ export default function AdminDeliveryZonesPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <span className="text-sm">
-                          {zone.estimatedDeliveryTimeMin}-{zone.estimatedDeliveryTimeMax}
+                          {zone.estimatedDeliveryTimeMin}-
+                          {zone.estimatedDeliveryTimeMax}
                         </span>
                       </TableCell>
                       <TableCell className="text-center">
@@ -361,7 +378,10 @@ export default function AdminDeliveryZonesPage() {
               <div className="flex items-center justify-between p-4 border-t border-border/50">
                 <p className="text-xs text-muted-foreground">
                   Showing {(pagination.page - 1) * pagination?.limit + 1} to{" "}
-                  {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+                  {Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total,
+                  )}{" "}
                   of {pagination.total} zones
                 </p>
                 <div className="flex gap-2">

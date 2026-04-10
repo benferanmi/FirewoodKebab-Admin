@@ -13,6 +13,10 @@ export interface CreateCouponRequest {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  notificationMethod?: "email" | "inApp" | "banner" | "all" | "none";
+  targetAudience?: "all_users" | "new_users" | "returning_users";
+  bannerImage?: string;
+  bannerText?: string;
 }
 
 export interface Banner {
@@ -41,7 +45,6 @@ export interface CreateBannerRequest {
   isActive: boolean;
 }
 
-// Helper to normalize _id to id
 const normalizeId = (item: any): any => {
   if (!item) return item;
   return {
@@ -51,12 +54,14 @@ const normalizeId = (item: any): any => {
 };
 
 export const promotionsAPI = {
-  // Coupons
-  getCoupons: async (params?: { page?: number; limit?: number; status?: string }) => {
+  getCoupons: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  }) => {
     const response = await client.get(API_ENDPOINTS.COUPONS, { params });
     const data = response.data.data;
-    
-    // Normalize the response
+
     return {
       data: data.data?.map(normalizeId) || data?.map?.(normalizeId) || [],
       pagination: data.pagination,
@@ -85,15 +90,15 @@ export const promotionsAPI = {
     };
   },
 
-  // Banners
   getBanners: async () => {
     const response = await client.get(API_ENDPOINTS.BANNERS);
-    
-    // Handle both array and wrapped response
-    const bannerData = Array.isArray(response.data) 
-      ? response.data 
-      : (Array.isArray(response.data.data) ? response.data.data : []);
-    
+
+    const bannerData = Array.isArray(response.data)
+      ? response.data
+      : Array.isArray(response.data.data)
+        ? response.data.data
+        : [];
+
     return bannerData.map(normalizeId);
   },
 

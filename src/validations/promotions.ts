@@ -6,7 +6,10 @@ export const couponSchema = z
       .string()
       .min(1, "Code is required")
       .max(20, "Code must be less than 20 characters")
-      .regex(/^[A-Z0-9_-]+$/, "Code can only contain uppercase letters, numbers, hyphens, and underscores"),
+      .regex(
+        /^[A-Z0-9_-]+$/,
+        "Code can only contain uppercase letters, numbers, hyphens, and underscores",
+      ),
 
     type: z.enum(["fixed_amount", "percentage"], {
       errorMap: () => ({ message: "Type must be fixed_amount or percentage" }),
@@ -15,49 +18,81 @@ export const couponSchema = z
     value: z
       .number()
       .min(0, "Value must be 0 or more")
-      .refine(
-        (val) => {
-          // Percentage: 0-100
-          // Fixed amount: any positive number
-          return val >= 0;
-        },
-        "Value must be valid"
-      ),
+      .refine((val) => {
+        // Percentage: 0-100
+        // Fixed amount: any positive number
+        return val >= 0;
+      }, "Value must be valid"),
 
     description: z.string().optional(),
 
     minOrderAmount: z
       .number()
       .optional()
-      .refine((val) => val === undefined || val >= 0, "Minimum order amount must be positive"),
+      .refine(
+        (val) => val === undefined || val >= 0,
+        "Minimum order amount must be positive",
+      ),
 
     maxUsagePerUser: z
       .number()
       .optional()
-      .refine((val) => val === undefined || val >= 1, "Max usage per user must be at least 1"),
+      .refine(
+        (val) => val === undefined || val >= 1,
+        "Max usage per user must be at least 1",
+      ),
 
     maxTotalUsage: z
       .number()
       .optional()
-      .refine((val) => val === undefined || val >= 1, "Max total usage must be at least 1"),
+      .refine(
+        (val) => val === undefined || val >= 1,
+        "Max total usage must be at least 1",
+      ),
 
     startDate: z
       .string()
       .min(1, "Start date is required")
-      .refine(
-        (date) => !isNaN(new Date(date).getTime()),
-        "Invalid start date"
-      ),
+      .refine((date) => !isNaN(new Date(date).getTime()), "Invalid start date"),
 
     endDate: z
       .string()
       .min(1, "End date is required")
-      .refine(
-        (date) => !isNaN(new Date(date).getTime()),
-        "Invalid end date"
-      ),
+      .refine((date) => !isNaN(new Date(date).getTime()), "Invalid end date"),
 
     isActive: z.boolean().default(true),
+
+    // Notification fields
+    notificationMethod: z
+      .enum(["email", "inApp", "banner", "all", "none"])
+      .default("none"),
+
+    targetAudience: z
+      .enum(["all_users", "new_users", "returning_users"])
+      .default("all_users"),
+
+    bannerImage: z
+      .string()
+      .nullable()
+      .optional()
+      .refine(
+        (val) =>
+          val === undefined ||
+          val === null ||
+          val === "" ||
+          /^(https?:\/\/.+|data:image)/.test(val),
+        "Banner image must be a valid URL or base64 data",
+      ),
+
+    bannerText: z
+      .string()
+      .nullable()
+      .optional()
+      .refine(
+        (val) =>
+          val === undefined || val === null || val === "" || val.length <= 200,
+        "Banner text must be less than 200 characters",
+      ),
   })
   .refine(
     (data) => {
@@ -68,7 +103,37 @@ export const couponSchema = z
     {
       message: "End date must be after start date",
       path: ["endDate"],
-    }
+    },
+  )
+  .refine(
+    (data) => {
+      const needsBanner =
+        data.notificationMethod === "banner" ||
+        data.notificationMethod === "all";
+      if (needsBanner && !data.bannerImage) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Banner image is required when banner notification is selected",
+      path: ["bannerImage"],
+    },
+  )
+  .refine(
+    (data) => {
+      const needsBanner =
+        data.notificationMethod === "banner" ||
+        data.notificationMethod === "all";
+      if (needsBanner && !data.bannerText) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Banner text is required when banner notification is selected",
+      path: ["bannerText"],
+    },
   );
 
 export type CouponFormData = z.infer<typeof couponSchema>;
@@ -84,7 +149,10 @@ export const bannerSchema = z
     description: z
       .string()
       .optional()
-      .refine((val) => val === undefined || val.length <= 500, "Description must be less than 500 characters"),
+      .refine(
+        (val) => val === undefined || val.length <= 500,
+        "Description must be less than 500 characters",
+      ),
 
     image: z
       .string()
@@ -94,31 +162,28 @@ export const bannerSchema = z
     ctaText: z
       .string()
       .optional()
-      .refine((val) => val === undefined || val.length <= 50, "CTA text must be less than 50 characters"),
+      .refine(
+        (val) => val === undefined || val.length <= 50,
+        "CTA text must be less than 50 characters",
+      ),
 
     ctaLink: z
       .string()
       .optional()
       .refine(
         (val) => val === undefined || val === "" || /^https?:\/\/.+/.test(val),
-        "CTA link must be a valid URL starting with http:// or https://"
+        "CTA link must be a valid URL starting with http:// or https://",
       ),
 
     startDate: z
       .string()
       .min(1, "Start date is required")
-      .refine(
-        (date) => !isNaN(new Date(date).getTime()),
-        "Invalid start date"
-      ),
+      .refine((date) => !isNaN(new Date(date).getTime()), "Invalid start date"),
 
     endDate: z
       .string()
       .min(1, "End date is required")
-      .refine(
-        (date) => !isNaN(new Date(date).getTime()),
-        "Invalid end date"
-      ),
+      .refine((date) => !isNaN(new Date(date).getTime()), "Invalid end date"),
 
     isActive: z.boolean().default(true),
   })
@@ -131,7 +196,7 @@ export const bannerSchema = z
     {
       message: "End date must be after start date",
       path: ["endDate"],
-    }
+    },
   );
 
 export type BannerFormData = z.infer<typeof bannerSchema>;

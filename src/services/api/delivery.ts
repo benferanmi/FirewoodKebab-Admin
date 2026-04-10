@@ -11,11 +11,17 @@ export interface IDeliveryZone {
     centerLongitude?: number;
     radiusKm?: number;
   };
+  active: boolean;
   deliveryFee: number;
   minimumOrder: number;
   estimatedDeliveryTimeMin: number;
   estimatedDeliveryTimeMax: number;
-  active: boolean;
+  centerLat?: number;
+  centerLng?: number;
+  radiusKm?: number;
+  zipcode?: string;
+  zipcodeLat?: number;
+  zipcodeLng?: number;
   priority: number;
   createdAt?: Date;
   updatedAt?: Date;

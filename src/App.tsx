@@ -18,6 +18,7 @@ import ContentPage from "@/pages/admin/ContentPage";
 import NotificationsPage from "@/pages/admin/NotificationsPage";
 import NotFound from "@/pages/NotFound";
 import AdminDeliveryZonesPage from "./pages/admin/DeliveryZonePage";
+import 'leaflet/dist/leaflet.css';
 
 const queryClient = new QueryClient();
 
