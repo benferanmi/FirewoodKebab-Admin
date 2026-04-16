@@ -25,6 +25,20 @@ export const menuItemSchema = z.object({
   isAvailable: z.boolean().default(true),
   isCatering: z.boolean().default(false),
   stock: z.coerce.number().min(0).optional(),
+   seoTitle: z
+    .string()
+    .max(60, "SEO title must be 60 characters or less")
+    .optional()
+    .or(z.literal("")),
+  seoDescription: z
+    .string()
+    .max(160, "SEO description must be 160 characters or less")
+    .optional()
+    .or(z.literal("")),
+  seoKeywords: z
+    .array(z.string())
+    .optional()
+    .default([]),
 });
 
 export type MenuItemFormData = z.infer<typeof menuItemSchema>;

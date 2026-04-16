@@ -9,6 +9,7 @@ import {
   ChevronRight,
   SlidersHorizontal,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ import { uploadAPI } from "@/services/api/uploadapi";
 import { MenuItem } from "@/types/admin";
 import { CreateMenuItemRequest, MenuCategory } from "@/services/api/menu";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
 
 const DIETARY_TAGS = ["vegan", "halal", "gluten-free"] as const;
 const PAGE_SIZE_OPTIONS = [12, 24, 48];
@@ -92,6 +94,7 @@ export default function MenuPage() {
   const [categoryDescription, setCategoryDescription] = useState("");
   const [categoryImage, setCategoryImage] = useState("");
   const [categoryImageUploading, setCategoryImageUploading] = useState(false);
+  const [seoExpanded, setSeoExpanded] = useState(false);
 
   // Build filters for API
   const apiFilters = {
@@ -286,6 +289,9 @@ export default function MenuPage() {
         stock: item.stock,
         isCatering: item.isCatering,
         variants: item.variants,
+        seoTitle: item.seoTitle,
+        seoDescription: item.seoDescription,
+        seoKeywords: item.seoKeywords,
       },
     });
 
@@ -427,6 +433,101 @@ export default function MenuPage() {
             </div>
           ))}
         </div>
+        <Collapsible
+          open={seoExpanded}
+          onOpenChange={setSeoExpanded}
+          className="border-t pt-4 mt-6"
+        >
+          <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors">
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                seoExpanded ? "rotate-180" : ""
+              }`}
+            />
+            <Search className="h-4 w-4" />
+            SEO Settings (Optional)
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs font-semibold">SEO Title</Label>
+              <Input
+                {...form.register("seoTitle")}
+                placeholder={`Default: ${form.watch("name")}`}
+                maxLength={60}
+                className="h-9 text-sm mt-1"
+              />
+              <div className="flex justify-between mt-1">
+                <p className="text-[10px] text-muted-foreground">
+                  Shown in search results and browser tab.
+                </p>
+                <span className="text-[10px] text-muted-foreground">
+                  {form.watch("seoTitle")?.length || 0}/60
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">SEO Description</Label>
+              <Textarea
+                {...form.register("seoDescription")}
+                placeholder={`Default: First 155 chars of description`}
+                maxLength={160}
+                className="text-sm min-h-[80px] mt-1"
+              />
+              <div className="flex justify-between mt-1">
+                <p className="text-[10px] text-muted-foreground">
+                  Meta description for search results (160 chars max).
+                </p>
+                <span className="text-[10px] text-muted-foreground">
+                  {form.watch("seoDescription")?.length || 0}/160
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">SEO Keywords</Label>
+              <Input
+                placeholder="Enter keyword and press Enter"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const keywords = form.getValues("seoKeywords") || [];
+                    const value = e.currentTarget.value.trim();
+                    if (value && !keywords.includes(value)) {
+                      form.setValue("seoKeywords", [...keywords, value]);
+                      e.currentTarget.value = "";
+                    }
+                  }
+                }}
+                className="h-9 text-sm mt-1"
+              />
+              <div className="flex flex-wrap gap-2 mt-3">
+                {(form.watch("seoKeywords") || []).map((kw) => (
+                  <Badge
+                    key={kw}
+                    variant="secondary"
+                    className="gap-1.5 text-xs py-1"
+                  >
+                    {kw}
+                    <X
+                      className="h-3 w-3 cursor-pointer hover:text-destructive"
+                      onClick={() => {
+                        const keywords = form.getValues("seoKeywords") || [];
+                        form.setValue(
+                          "seoKeywords",
+                          keywords.filter((k) => k !== kw),
+                        );
+                      }}
+                    />
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                Press Enter to add keywords. These help with search engine
+                visibility.
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
         <DialogFooter>
           <Button
             type="submit"

@@ -14,6 +14,7 @@ import {
   LogOut,
   ChefHat,
   ShoppingBasket,
+  Search,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,18 @@ const navItems = [
     label: "Settings",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
-  // { to: "/admin/content", icon: FileText, label: "Content", permission: PERMISSIONS.MANAGE_CONTENT },
+  {
+    to: "/admin/seo",
+    icon: Search, // import Search from lucide-react
+    label: "SEO Manager",
+    permission: PERMISSIONS.MANAGE_SETTINGS,
+  },
+  {
+    to: "/admin/content",
+    icon: FileText, // import FileText from lucide-react
+    label: "Content Manager",
+    permission: PERMISSIONS.MANAGE_SETTINGS,
+  },
   {
     to: "/admin/notifications",
     icon: Bell,

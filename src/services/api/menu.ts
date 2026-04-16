@@ -26,6 +26,9 @@ export interface CreateMenuItemRequest {
   isAvailable?: boolean;
   isCatering?: boolean;
   stock?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
 }
 
 export const menuAPI = {

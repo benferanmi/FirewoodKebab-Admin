@@ -14,11 +14,12 @@ import ReviewsPage from "@/pages/admin/ReviewsPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import TeamPage from "@/pages/admin/TeamPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
-import ContentPage from "@/pages/admin/ContentPage";
 import NotificationsPage from "@/pages/admin/NotificationsPage";
 import NotFound from "@/pages/NotFound";
 import AdminDeliveryZonesPage from "./pages/admin/DeliveryZonePage";
-import 'leaflet/dist/leaflet.css';
+import "leaflet/dist/leaflet.css";
+import ContentManagerPage from "./pages/admin/ContentManagerPage";
+import SeoPage from "./pages/admin/SeoPage";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +43,9 @@ const App = () => (
             <Route path="team" element={<TeamPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="delivery" element={<AdminDeliveryZonesPage />} />
-            <Route path="content" element={<ContentPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="seo" element={<SeoPage />} />
+            <Route path="content" element={<ContentManagerPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

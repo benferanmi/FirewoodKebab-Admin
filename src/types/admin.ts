@@ -152,6 +152,9 @@ export interface MenuItem {
   variants: VariantGroup[];
   createdAt: string; // ← new
   updatedAt: string; // ← new
+  seoTitle?: string; // ← new
+  seoDescription?: string; // ← new
+  seoKeywords?: string[]; // ← new
 }
 
 export interface Customer {
@@ -203,3 +206,210 @@ export interface Coupon {
   endDate: string;
   isActive: boolean;
 }
+export interface ISeoPageMetadata {
+  title: string; // max 60 chars
+  description: string; // max 160 chars
+  ogImage?: string; // Cloudinary URL
+  canonical?: string;
+}
+
+export interface ISeoGlobal {
+  siteTitle: string;
+  metaDescription: string;
+  ogImageUrl?: string;
+  googleAnalyticsId?: string;
+  googleSearchConsoleCode?: string;
+}
+
+export interface ILocalSeo {
+  name: string;
+  address: string;
+  phone: string;
+  googleBusinessUrl?: string;
+  yelpUrl?: string;
+  tripadvisorUrl?: string;
+  serviceArea?: string;
+  cuisineType?: string[];
+}
+
+export interface IStructuredDataSettings {
+  enableRestaurantSchema: boolean;
+  enableMenuSchema: boolean;
+  enableBreadcrumbs: boolean;
+}
+
+export interface IRedirect {
+  _id?: string;
+  from: string;
+  to: string;
+  statusCode: number;
+}
+
+export interface ISeoSettings {
+  _id: string;
+
+  // Global SEO
+  globalSeo: ISeoGlobal;
+
+  // Per-page SEO
+  pagesSeo: {
+    home?: ISeoPageMetadata;
+    menu?: ISeoPageMetadata;
+    about?: ISeoPageMetadata;
+    contact?: ISeoPageMetadata;
+    catering?: ISeoPageMetadata;
+  };
+
+  // Local SEO
+  localSeo: ILocalSeo;
+
+  // Structured Data
+  structuredData: IStructuredDataSettings;
+
+  // Robots.txt
+  robotsTxt?: string;
+
+  // Redirects
+  redirects: IRedirect[];
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ===== Page Content Types =====
+export interface IAboutContent {
+  heroHeading: string;
+  heroSubheading: string;
+  storyText: string;
+  stats: Array<{
+    value: string;
+    label: string;
+  }>;
+  values: Array<{
+    title: string;
+    description: string;
+    icon: string; // lucide-react icon name or emoji
+  }>;
+  team: Array<{
+    name: string;
+    role: string;
+    bio?: string;
+    image: string; // Cloudinary URL
+  }>;
+}
+
+export interface IContactContent {
+  heroHeading: string;
+  heroText: string;
+}
+
+export interface ICateringContent {
+  heroHeading: string;
+  heroText: string;
+  features: Array<{
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+}
+
+export type PageSlug = "home" | "about" | "contact" | "catering" | "menu";
+
+export interface IPageContent {
+  _id: string;
+  pageSlug: PageSlug;
+  home?: {
+    heroHeading: string;
+    heroTagline: string;
+    heroDescription: string;
+  };
+  // Page-specific content
+  about?: IAboutContent;
+  contact?: IContactContent;
+  catering?: ICateringContent;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ===== Extended MenuItem SEO =====
+export interface IMenuItemSeo {
+  seoTitle?: string; // Page title for /menu/:id
+  seoDescription?: string; // Meta description
+  seoKeywords?: string[];
+}
+
+// Add to existing IMenuItem:
+// seo?: IMenuItemSeo;
+
+// ===== Homepage SEO Schema Response =====
+export interface IHomepageSeoData {
+  title: string;
+  description: string;
+  ogImage?: string;
+  canonical: string;
+  restaurantSchema: Record<string, any>; // JSON-LD
+  breadcrumbSchema: Record<string, any>; // JSON-LD
+}
+
+// ===== API Response DTOs =====
+export interface CreateOrUpdateSeoGlobalDTO {
+  siteTitle: string;
+  metaDescription: string;
+  ogImageUrl?: string;
+  googleAnalyticsId?: string;
+  googleSearchConsoleCode?: string;
+}
+
+// export interface CreateOrUpdatePageSeoDTO extends ISeoPageMetadata {}
+
+// export interface CreateOrUpdateLocalSeoDTO extends ILocalSeo {}
+
+// export interface CreateOrUpdateStructuredDataDTO extends IStructuredDataSettings {}
+
+export interface CreateRedirectDTO {
+  from: string;
+  to: string;
+  statusCode?: number;
+}
+
+export interface UpdateRobotsTxtDTO {
+  robotsTxt: string;
+}
+
+export interface CreateOrUpdatePageContentDTO {
+  pageSlug: PageSlug;
+  about?: IAboutContent;
+  contact?: IContactContent;
+  catering?: ICateringContent;
+}
+
+export interface IAboutStat {
+  value: string;
+  label: string;
+}
+
+export interface IAboutValue {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface IAboutTeamMember {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+}
+
+
+export interface IAboutSeoData {
+  title: string;
+  description: string;
+  ogImage?: string;
+  canonical: string;
+  organizationSchema?: any;
+  personSchemas?: any[];
+  breadcrumbSchema?: any;
+}
+
