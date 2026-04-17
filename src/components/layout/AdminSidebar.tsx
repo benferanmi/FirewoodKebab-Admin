@@ -15,6 +15,7 @@ import {
   ChefHat,
   ShoppingBasket,
   Search,
+  CreditCard,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
@@ -46,9 +47,15 @@ const navItems = [
     permission: PERMISSIONS.VIEW_CUSTOMERS,
   },
   {
-    to: "/admin/promotions",
+    to: "/admin/payments",
+    icon: CreditCard,
+    label: "Payments",
+    permission: PERMISSIONS.MANAGE_SETTINGS,
+  },
+  {
+    to: "/admin/marketing",
     icon: Tag,
-    label: "Promotions",
+    label: "Marketing",
     permission: PERMISSIONS.VIEW_PROMOTIONS,
   },
   {
@@ -89,12 +96,7 @@ const navItems = [
     label: "Content Manager",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
-  {
-    to: "/admin/notifications",
-    icon: Bell,
-    label: "Notifications",
-    permission: PERMISSIONS.SEND_NOTIFICATIONS,
-  },
+ 
 ];
 
 export function AdminSidebar() {

@@ -9,17 +9,17 @@ import DashboardPage from "@/pages/admin/DashboardPage";
 import OrdersPage from "@/pages/admin/OrdersPage";
 import MenuPage from "@/pages/admin/MenuPage";
 import CustomersPage from "@/pages/admin/CustomersPage";
-import PromotionsPage from "@/pages/admin/PromotionsPage";
+import MarketingPage from "@/pages/admin/MarketingPage";
 import ReviewsPage from "@/pages/admin/ReviewsPage";
 import AnalyticsPage from "@/pages/admin/AnalyticsPage";
 import TeamPage from "@/pages/admin/TeamPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
-import NotificationsPage from "@/pages/admin/NotificationsPage";
 import NotFound from "@/pages/NotFound";
 import AdminDeliveryZonesPage from "./pages/admin/DeliveryZonePage";
 import "leaflet/dist/leaflet.css";
 import ContentManagerPage from "./pages/admin/ContentManagerPage";
 import SeoPage from "./pages/admin/SeoPage";
+import PaymentsPage from "./pages/admin/PaymentsPage";
 
 const queryClient = new QueryClient();
 
@@ -37,13 +37,13 @@ const App = () => (
             <Route path="orders" element={<OrdersPage />} />
             <Route path="menu" element={<MenuPage />} />
             <Route path="customers" element={<CustomersPage />} />
-            <Route path="promotions" element={<PromotionsPage />} />
+            <Route path="marketing" element={<MarketingPage />} />
             <Route path="reviews" element={<ReviewsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="/admin/payments" element={<PaymentsPage />} />
             <Route path="team" element={<TeamPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="delivery" element={<AdminDeliveryZonesPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
             <Route path="seo" element={<SeoPage />} />
             <Route path="content" element={<ContentManagerPage />} />
           </Route>

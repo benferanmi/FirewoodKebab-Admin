@@ -413,3 +413,69 @@ export interface IAboutSeoData {
   breadcrumbSchema?: any;
 }
 
+// Announcement Types
+export interface IAnnouncement {
+  _id?: string;
+  id?: string;
+  title: string;
+  message: string;
+  backgroundColor?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  isBroadcast: boolean; // true = all users, false = specific users
+  targetUserIds?: string[]; // User IDs if not broadcast
+  adminId: string;
+  createdByAdmin: true;
+  type: "announcement";
+  isRead?: boolean;
+  readAt?: Date;
+  expiresAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface INotification {
+  _id?: string;
+  userId?: string;
+  orderId?: string;
+  couponId?: string;
+  type: "order_confirmation" | "order_update" | "delivery" | "review" | "promotion" | "announcement";
+  title: string;
+  message: string;
+  data?: any;
+  isRead?: boolean;
+  readAt?: Date;
+  channels?: {
+    email?: boolean;
+    sms?: boolean;
+    push?: boolean;
+    inApp?: boolean;
+  };
+  isBroadcast?: boolean;
+  expiresAt?: Date;
+  createdByAdmin?: boolean;
+  adminId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateAnnouncementRequest {
+  title: string;
+  message: string;
+  backgroundColor?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  isBroadcast: boolean;
+  targetUserIds?: string[];
+}
+
+export interface UpdateAnnouncementRequest {
+  title?: string;
+  message?: string;
+  backgroundColor?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  isBroadcast?: boolean;
+  targetUserIds?: string[];
+  expiresAt?: string;
+}

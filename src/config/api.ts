@@ -42,13 +42,18 @@ export const API_ENDPOINTS = {
   CUSTOMER_UNBLOCK: (id: string) => `/admin/customers/${id}/unblock`,
   CUSTOMER_ORDERS: (id: string) => `/admin/customers/${id}/orders`,
 
-  // Promotions
-  COUPONS: "/admin/promotions/coupons",
-  COUPON: (id: string) => `/admin/promotions/coupons/${id}`,
-  COUPON_USAGE: (id: string) => `/admin/promotions/coupons/${id}/usage`,
-  BANNERS: "/admin/promotions/banners",
-  BANNER: (id: string) => `/admin/promotions/banners/${id}`,
-
+  // Marketing
+  COUPONS: "/admin/marketing/coupons",
+  COUPON: (id: string) => `/admin/marketing/coupons/${id}`,
+  COUPON_USAGE: (id: string) => `/admin/marketing/coupons/${id}/usage`,
+  BANNERS: "/admin/marketing/banners",
+  BANNER: (id: string) => `/admin/marketing/banners/${id}`,
+ // Announcements (Admin)
+  ANNOUNCEMENTS: "/admin/marketing/announcements",
+  ANNOUNCEMENT: (id: string) => `/admin/marketing/announcements/${id}`,
+  ANNOUNCEMENT_STATS: (id: string) => `/admin/marketing/announcements/${id}/stats`,
+  MARKETING: "/admin/marketing",
+  MARKETING_PUBLIC: "/marketing",
   // Reviews
   REVIEWS: "/admin/reviews",
   REVIEW: (id: string) => `/admin/reviews/${id}`,
@@ -80,7 +85,4 @@ export const API_ENDPOINTS = {
   CONTENT_GALLERY: "/admin/content/gallery",
   CONTENT_GALLERY_ITEM: (id: string) => `/admin/content/gallery/${id}`,
 
-  // Notifications
-  NOTIFICATIONS_SEND: "/admin/notifications/send",
-  NOTIFICATIONS_TEMPLATES: "/admin/notifications/templates",
 } as const;

@@ -5,13 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   useRestaurantSettings,
   useUpdateRestaurantSettings,
@@ -41,7 +35,6 @@ const days = [
 
 export default function SettingsPage() {
   const { hasPermission, hasRole } = useAuthStore();
-  const isSuperAdmin = hasRole("superadmin");
 
   // Restaurant settings
   const { data: restaurant } = useRestaurantSettings();
@@ -87,13 +80,6 @@ export default function SettingsPage() {
     });
   };
 
-  // Payment settings
-  const { data: payment } = usePaymentSettings();
-  const updatePayment = useUpdatePaymentSettings();
-  const [paymentForm, setPaymentForm] = useState<Record<string, any>>({});
-
-  const getPaymentValue = (field: string) =>
-    paymentForm[field] ?? (payment as any)?.[field];
 
   // Email settings
   const { data: emailConfig } = useEmailSettings();
@@ -153,11 +139,7 @@ export default function SettingsPage() {
         <TabsTrigger value="social" className="text-xs">
           Social
         </TabsTrigger>
-        {isSuperAdmin && (
-          <TabsTrigger value="payment" className="text-xs">
-            Payment
-          </TabsTrigger>
-        )}
+      
         {/* {isSuperAdmin && (
           <TabsTrigger value="email" className="text-xs">
             Email
@@ -470,41 +452,7 @@ export default function SettingsPage() {
         </div>
       </TabsContent>
 
-      {/* ── Payment (superadmin only) ── */}
-      {isSuperAdmin && (
-        <TabsContent value="payment">
-          <div className="glass-card rounded-xl p-6 space-y-5 max-w-lg">
-            <h3 className="text-sm font-semibold">Payment Providers</h3>
-            <div className="space-y-4">
-              
-           
-             
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                <div>
-                  <p className="text-sm font-medium">Stripe</p>
-                  <p className="text-xs text-muted-foreground">
-                    Accept payments via Stripe
-                  </p>
-                </div>
-                <Switch
-                  checked={getPaymentValue("stripeEnabled") ?? false}
-                  onCheckedChange={(v) =>
-                    setPaymentForm((p) => ({ ...p, stripeEnabled: v }))
-                  }
-                />
-              </div>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => updatePayment.mutate(paymentForm as any)}
-              disabled={updatePayment.isPending}
-            >
-              <Save className="h-3.5 w-3.5 mr-1.5" />
-              {updatePayment.isPending ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        </TabsContent>
-      )}
+ 
 
     </Tabs>
   );
