@@ -107,3 +107,48 @@ export function usePaymentMethodAnalytics(params?: AnalyticsFilters) {
     ],
   });
 }
+
+export function useSalesReportFull(
+  params?: AnalyticsFilters & { breakdown?: "category" | "paymentMethod" }
+) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "sales", params],
+    queryFn: () => analyticsAPI.getSalesReport(params),
+  });
+}
+ 
+export function useOrdersReportFull(params?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "orders", params],
+    queryFn: () => analyticsAPI.getOrdersReport(params),
+  });
+}
+ 
+export function useMenuPerformanceReport(params?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "menu", params],
+    queryFn: () => analyticsAPI.getMenuPerformanceReport(params),
+  });
+}
+ 
+export function useCustomersReportFull(params?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "customers", params],
+    queryFn: () => analyticsAPI.getCustomersReport(params),
+  });
+}
+ 
+export function useDeliveryReportFull(params?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "delivery", params],
+    queryFn: () => analyticsAPI.getDeliveryReport(params),
+  });
+}
+ 
+export function useDiscountsReport(params?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ["analytics", "reports", "discounts", params],
+    queryFn: () => analyticsAPI.getDiscountsReport(params),
+  });
+}
+ 

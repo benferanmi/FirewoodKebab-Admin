@@ -11,7 +11,7 @@ import MenuPage from "@/pages/admin/MenuPage";
 import CustomersPage from "@/pages/admin/CustomersPage";
 import MarketingPage from "@/pages/admin/MarketingPage";
 import ReviewsPage from "@/pages/admin/ReviewsPage";
-import AnalyticsPage from "@/pages/admin/AnalyticsPage";
+import ReportsPage from "@/pages/admin/Reports";
 import TeamPage from "@/pages/admin/TeamPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import NotFound from "@/pages/NotFound";
@@ -20,6 +20,7 @@ import "leaflet/dist/leaflet.css";
 import ContentManagerPage from "./pages/admin/ContentManagerPage";
 import SeoPage from "./pages/admin/SeoPage";
 import PaymentsPage from "./pages/admin/PaymentsPage";
+import ToolsPage from "./pages/admin/Tools";
 
 const queryClient = new QueryClient();
 
@@ -39,13 +40,15 @@ const App = () => (
             <Route path="customers" element={<CustomersPage />} />
             <Route path="marketing" element={<MarketingPage />} />
             <Route path="reviews" element={<ReviewsPage />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="/admin/payments" element={<PaymentsPage />} />
             <Route path="team" element={<TeamPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="delivery" element={<AdminDeliveryZonesPage />} />
             <Route path="seo" element={<SeoPage />} />
             <Route path="content" element={<ContentManagerPage />} />
+            <Route path="tools" element={<ToolsPage />} />
+
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

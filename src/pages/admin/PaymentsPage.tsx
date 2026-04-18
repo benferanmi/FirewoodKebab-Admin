@@ -29,14 +29,14 @@ export default function PaymentsPage() {
         <TabsList className="bg-muted/50">
           <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
           <TabsTrigger value="transactions" className="text-xs">Transactions</TabsTrigger>
-          <TabsTrigger value="refunds" className="text-xs">Refunds</TabsTrigger>
-          <TabsTrigger value="payouts" className="text-xs">Payouts</TabsTrigger>
+          {/* <TabsTrigger value="refunds" className="text-xs">Refunds</TabsTrigger> */}
+          {/* <TabsTrigger value="payouts" className="text-xs">Payouts</TabsTrigger> */}
           {isSuperAdmin && <TabsTrigger value="settings" className="text-xs">Settings</TabsTrigger>}
         </TabsList>
         <TabsContent value="overview"><OverviewTab /></TabsContent>
         <TabsContent value="transactions"><TransactionsTab /></TabsContent>
-        <TabsContent value="refunds"><RefundsTab /></TabsContent>
-        <TabsContent value="payouts"><PayoutsTab /></TabsContent>
+        {/* <TabsContent value="refunds"><RefundsTab /></TabsContent> */}
+        {/* <TabsContent value="payouts"><PayoutsTab /></TabsContent> */}
         {isSuperAdmin && <TabsContent value="settings"><PaymentSettingsTab /></TabsContent>}
       </Tabs>
     </div>

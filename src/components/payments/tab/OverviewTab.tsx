@@ -4,10 +4,15 @@ import { DollarSign, ShoppingBag, AlertTriangle, Clock } from "lucide-react";
 export default function OverviewTab() {
   const { data, isLoading } = usePaymentsOverview();
 
+  const formatAmount = (value: any): string => {
+    if (typeof value !== "number" || isNaN(value)) return "$0.00";
+    return `$${(value ).toFixed(2)}`;
+  };
+
   const stats = [
     {
       label: "Today's Revenue",
-      value: `$${((data?.todayRevenue || 0) / 100).toFixed(2)}`,
+      value: formatAmount(data?.todayRevenue),
       icon: DollarSign,
       color: "text-green-500",
     },
@@ -25,7 +30,7 @@ export default function OverviewTab() {
     },
     {
       label: "Pending Amount",
-      value: `$${((data?.pendingAmount || 0) / 100).toFixed(2)}`,
+      value: formatAmount(data?.pendingAmount),
       icon: Clock,
       color: "text-yellow-500",
     },
@@ -76,7 +81,7 @@ export default function OverviewTab() {
                 >
                   <td className="py-2 font-mono">{t.orderNumber}</td>
                   <td className="py-2">{t.customer}</td>
-                  <td className="py-2">${(t.amount / 100).toFixed(2)}</td>
+                  <td className="py-2">{formatAmount(t.amount)}</td>
                   <td className="py-2">
                     <StatusBadge status={t.status} />
                   </td>

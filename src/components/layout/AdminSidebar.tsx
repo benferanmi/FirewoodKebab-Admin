@@ -16,6 +16,7 @@ import {
   ShoppingBasket,
   Search,
   CreditCard,
+  Wrench,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
@@ -64,7 +65,12 @@ const navItems = [
     label: "Reviews",
     permission: PERMISSIONS.VIEW_REVIEWS,
   },
-  // { to: "/admin/analytics", icon: BarChart3, label: "Analytics", permission: PERMISSIONS.VIEW_ANALYTICS },
+  {
+    to: "/admin/reports",
+    icon: BarChart3,
+    label: "Reports",
+    permission: PERMISSIONS.VIEW_ANALYTICS,
+  },
   {
     to: "/admin/team",
     icon: UserCog,
@@ -77,7 +83,12 @@ const navItems = [
     label: "Delivery Zones",
     permission: PERMISSIONS.MANAGE_DELIVERY_ZONES,
   },
-
+  {
+    to: "/admin/tools",
+    icon: Wrench,
+    label: "Tools",
+    permission: PERMISSIONS.MANAGE_SETTINGS,
+  },
   {
     to: "/admin/settings",
     icon: Settings,
@@ -96,7 +107,6 @@ const navItems = [
     label: "Content Manager",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
- 
 ];
 
 export function AdminSidebar() {

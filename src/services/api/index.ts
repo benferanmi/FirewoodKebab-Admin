@@ -9,5 +9,5 @@ export { analyticsAPI } from "./analytics";
 export { teamAPI } from "./team";
 export { settingsAPI } from "./settings";
 export { contentAPI } from "./content";
-export { notificationsAPI } from "./notifications";
+export { toolsAPI } from "./tools";
 export { default as apiClient } from "./client";

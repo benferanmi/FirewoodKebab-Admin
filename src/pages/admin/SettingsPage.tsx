@@ -287,7 +287,7 @@ export default function SettingsPage() {
                 className="h-9 text-sm"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label className="text-xs">Min Order Amount ($)</Label>
               <Input
                 type="number"
@@ -314,7 +314,7 @@ export default function SettingsPage() {
                 }
                 className="h-9 text-sm"
               />
-            </div>
+            </div> */}
           </div>
           <Button
             size="sm"
