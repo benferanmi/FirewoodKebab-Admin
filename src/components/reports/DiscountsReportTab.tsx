@@ -45,7 +45,7 @@ export default function DiscountsReportTab({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Discounts Given"
-          value={`$${(summary.totalDiscountGiven / 1000).toFixed(1)}k`}
+          value={`$${(summary.totalDiscountGiven).toFixed(1)}`}
           change={0}
           icon={Percent}
         />

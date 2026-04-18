@@ -201,7 +201,7 @@ export default function CustomersReportTab({
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+              tickFormatter={(v) => `$${(v).toFixed(0)}`}
             />
             <YAxis
               type="category"

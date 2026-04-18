@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       setAuth(
         {
-          id: admin.id,
+          _id: admin.id,
           firstName: admin.firstName,
           lastName: admin.lastName,
           email: admin.email,
@@ -46,6 +46,9 @@ export default function LoginPage() {
           role: admin.role as AdminRole,
           isActive: admin.isActive,
           lastLogin: admin.lastLogin,
+          createdAt: admin.createdAt,
+          updatedAt: admin.updatedAt,
+          permissions: admin.permissions,
         },
         { accessToken, refreshToken },
       );

@@ -1,3 +1,4 @@
+import { Permission } from "@/types/admin";
 import client from "./client";
 import { API_ENDPOINTS } from "@/config/api";
 
@@ -19,6 +20,9 @@ export interface LoginResponse {
       role: string;
       isActive: boolean;
       lastLogin?: string;
+      createdAt: string;
+      updatedAt: string;
+      permissions: Permission[];
     };
     accessToken: string;
     refreshToken: string;

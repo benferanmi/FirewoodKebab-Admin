@@ -58,7 +58,7 @@ export default function SalesReportTab({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatsCard
           title="Total Revenue"
-          value={`$${(summary.totalRevenue / 1000000).toFixed(2)}`}
+          value={`$${(summary.totalRevenue).toFixed(2)}`}
           change={summary.revenueChange}
           icon={DollarSign}
         />
@@ -99,7 +99,7 @@ export default function SalesReportTab({
                 tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                tickFormatter={(v) => `$${(v).toFixed(0)}`}
               />
               <Tooltip
                 contentStyle={{

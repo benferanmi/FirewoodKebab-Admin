@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { AdminUser, AdminRole, ROLE_PERMISSIONS } from "@/types/admin";
+import { disconnectAdminSocket } from "@/hooks/useSocket";
 
 interface AuthState {
   admin: AdminUser | null;
@@ -30,14 +31,16 @@ export const useAuthStore = create<AuthState>()(
           role: admin.role,
           permissions: ROLE_PERMISSIONS[admin.role] || [],
         }),
-      logout: () =>
+      logout: () => {
+        disconnectAdminSocket(); // Add this line
         set({
           admin: null,
           accessToken: null,
           refreshToken: null,
           role: null,
           permissions: [],
-        }),
+        });
+      },
       hasPermission: (permission) => get().permissions.includes(permission),
       hasRole: (role) => get().role === role,
     }),

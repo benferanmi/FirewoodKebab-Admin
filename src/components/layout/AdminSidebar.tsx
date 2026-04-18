@@ -22,7 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import { PERMISSIONS } from "@/types/admin";
 
-const navItems = [
+const mainNavItems = [
   {
     to: "/admin/dashboard",
     icon: LayoutDashboard,
@@ -72,22 +72,16 @@ const navItems = [
     permission: PERMISSIONS.VIEW_ANALYTICS,
   },
   {
-    to: "/admin/team",
-    icon: UserCog,
-    label: "Team",
-    permission: PERMISSIONS.MANAGE_ADMIN_USERS,
-  },
-  {
     to: "/admin/delivery",
     icon: ShoppingBasket,
     label: "Delivery Zones",
     permission: PERMISSIONS.MANAGE_DELIVERY_ZONES,
   },
   {
-    to: "/admin/tools",
-    icon: Wrench,
-    label: "Tools",
-    permission: PERMISSIONS.MANAGE_SETTINGS,
+    to: "/admin/team",
+    icon: UserCog,
+    label: "Team",
+    permission: PERMISSIONS.MANAGE_ADMIN_USERS,
   },
   {
     to: "/admin/settings",
@@ -95,19 +89,56 @@ const navItems = [
     label: "Settings",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
+];
+
+const internalNavItems = [
+  {
+    to: "/admin/tools",
+    icon: Wrench,
+    label: "Tools",
+    permission: PERMISSIONS.MANAGE_SETTINGS,
+  },
   {
     to: "/admin/seo",
-    icon: Search, // import Search from lucide-react
+    icon: Search,
     label: "SEO Manager",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
   {
     to: "/admin/content",
-    icon: FileText, // import FileText from lucide-react
+    icon: FileText,
     label: "Content Manager",
     permission: PERMISSIONS.MANAGE_SETTINGS,
   },
 ];
+
+function NavItem({
+  item,
+  isActive,
+}: {
+  item: (typeof mainNavItems)[0];
+  isActive: boolean;
+}) {
+  return (
+    <NavLink
+      to={item.to}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+        isActive
+          ? "bg-sidebar-primary/15 text-sidebar-primary"
+          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+      )}
+    >
+      <item.icon
+        className={cn("h-[18px] w-[18px]", isActive && "text-sidebar-primary")}
+      />
+      {item.label}
+      {isActive && (
+        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-sidebar-primary animate-pulse-dot" />
+      )}
+    </NavLink>
+  );
+}
 
 export function AdminSidebar() {
   const { hasPermission, logout, admin } = useAuthStore();
@@ -132,33 +163,36 @@ export function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {navItems.map((item) => {
+        {/* Main Section */}
+        {mainNavItems.map((item) => {
           if (!hasPermission(item.permission)) return null;
-          const isActive = location.pathname === item.to;
           return (
-            <NavLink
+            <NavItem
               key={item.to}
-              to={item.to}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                isActive
-                  ? "bg-sidebar-primary/15 text-sidebar-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}
-            >
-              <item.icon
-                className={cn(
-                  "h-[18px] w-[18px]",
-                  isActive && "text-sidebar-primary",
-                )}
-              />
-              {item.label}
-              {isActive && (
-                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-sidebar-primary animate-pulse-dot" />
-              )}
-            </NavLink>
+              item={item}
+              isActive={location.pathname === item.to}
+            />
           );
         })}
+
+        {/* Internal Section */}
+        {internalNavItems.some((item) => hasPermission(item.permission)) && (
+          <div className="pt-4">
+            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              Internal
+            </p>
+            {internalNavItems.map((item) => {
+              if (!hasPermission(item.permission)) return null;
+              return (
+                <NavItem
+                  key={item.to}
+                  item={item}
+                  isActive={location.pathname === item.to}
+                />
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       {/* Footer */}

@@ -21,11 +21,16 @@ import ContentManagerPage from "./pages/admin/ContentManagerPage";
 import SeoPage from "./pages/admin/SeoPage";
 import PaymentsPage from "./pages/admin/PaymentsPage";
 import ToolsPage from "./pages/admin/Tools";
+import { useAdminSocketInit } from "./hooks/useSocket";
+import { useAuthStore } from "./store/authStore";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+const App = () => {
+   const token = useAuthStore((s) => s.accessToken); 
+  useAdminSocketInit(token);
+  return (
+     <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -55,6 +60,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  )
+}
 
 export default App;

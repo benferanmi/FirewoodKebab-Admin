@@ -9,6 +9,8 @@ interface OrderFilters {
   endDate?: string;
   page: number;
   limit: number;
+  sortBy: string;
+  sortOrder: "asc" | "desc"; 
 }
 
 interface CustomerFilters {
@@ -63,6 +65,8 @@ const defaultOrderFilters: OrderFilters = {
   search: "",
   page: 1,
   limit: 20,
+  sortBy: "createdAt",
+  sortOrder: "desc",
 };
 
 const defaultCustomerFilters: CustomerFilters = {

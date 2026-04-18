@@ -95,6 +95,13 @@ export interface UserData {
   phone: string;
 }
 
+export interface IStatusHistoryEntry {
+  status: string;
+  updatedAt: Date;
+  updatedBy?: string;
+  note?: string;
+}
+
 export interface Order {
   _id: string;
   orderNumber: string;
@@ -112,6 +119,8 @@ export interface Order {
   deliveryAddress?: {
     street: string;
     zipCode: string;
+    latitude?: number;
+    longitude?: number;
   };
   discount: number;
   total: number;
@@ -119,8 +128,20 @@ export interface Order {
   paymentStatus: PaymentStatus;
   paymentMethod: string;
   deliveryType: "delivery" | "collection";
+  zoneName?: string;
+  specialInstructions?: string;
+  totalAmountCharged: number;
+  couponCode?: string;
+  couponId?: string;
   createdAt: string;
   paymentReference?: string;
+  tipAmount: number;
+  totalWithTip: number;
+  paymentAttempts: number;
+  updatedAt: Date;
+  cancelledAt?: Date;
+  statusHistory: IStatusHistoryEntry[];
+  estimatedDeliveryTime?: Date;
 }
 
 export interface VariantOption {
@@ -402,7 +423,6 @@ export interface IAboutTeamMember {
   image: string;
 }
 
-
 export interface IAboutSeoData {
   title: string;
   description: string;
@@ -439,7 +459,13 @@ export interface INotification {
   userId?: string;
   orderId?: string;
   couponId?: string;
-  type: "order_confirmation" | "order_update" | "delivery" | "review" | "promotion" | "announcement";
+  type:
+    | "order_confirmation"
+    | "order_update"
+    | "delivery"
+    | "review"
+    | "promotion"
+    | "announcement";
   title: string;
   message: string;
   data?: any;

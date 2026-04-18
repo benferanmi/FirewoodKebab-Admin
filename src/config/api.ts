@@ -18,6 +18,10 @@ export const API_ENDPOINTS = {
   DASHBOARD_ORDER_ANALYTICS: "/admin/dashboard/order-analytics",
   DASHBOARD_ORDER_STATS: "/admin/dashboard/order-stats",
   DASHBOARD_PAYMENT_STATS: "/admin/dashboard/payment-stats",
+  DASHBOARD_TODAY_ORDER_STATUS: "/admin/dashboard/today-order-status",
+  DASHBOARD_LIVE_ORDERS: "/admin/dashboard/live-orders",
+  DASHBOARD_SUMMARY_CARDS: "/admin/dashboard/summary-cards",
+  DASHBOARD_RECENT_ORDERS: "/admin/dashboard/recent-orders",
 
   // Orders
   ORDERS: "/admin/orders",
@@ -48,10 +52,11 @@ export const API_ENDPOINTS = {
   COUPON_USAGE: (id: string) => `/admin/marketing/coupons/${id}/usage`,
   BANNERS: "/admin/marketing/banners",
   BANNER: (id: string) => `/admin/marketing/banners/${id}`,
- // Announcements (Admin)
+  // Announcements (Admin)
   ANNOUNCEMENTS: "/admin/marketing/announcements",
   ANNOUNCEMENT: (id: string) => `/admin/marketing/announcements/${id}`,
-  ANNOUNCEMENT_STATS: (id: string) => `/admin/marketing/announcements/${id}/stats`,
+  ANNOUNCEMENT_STATS: (id: string) =>
+    `/admin/marketing/announcements/${id}/stats`,
   MARKETING: "/admin/marketing",
   MARKETING_PUBLIC: "/marketing",
   // Reviews
@@ -84,5 +89,4 @@ export const API_ENDPOINTS = {
   CONTENT_HOME: "/admin/content/pages/home",
   CONTENT_GALLERY: "/admin/content/gallery",
   CONTENT_GALLERY_ITEM: (id: string) => `/admin/content/gallery/${id}`,
-
 } as const;

@@ -1,148 +1,91 @@
 import client from "./client";
 import { API_ENDPOINTS } from "@/config/api";
 
-export interface DashboardSummary {
+//  Today Snapshot
+export interface TodaySnapshot {
+  totalRevenue: number;
   totalOrders: number;
-  totalRevenue: number;
-  pendingOrders: number;
   newCustomers: number;
-  averageOrderValue: number;
-  period: string;
-  orderChange: number;
-  revenueChange: number;
-  customerChange: number;
+  pendingOrders: number;
 }
 
-export interface RevenueDataPoint {
-  _id: string;
-  date?: string;
-  revenue?: number;
-  total?: number;
-  count?: number;
-}
-
-export interface TopItemData {
-  _id: string;
-  name: string;
-  totalQuantity: number;
-  totalRevenue: number;
-}
-
-export interface OrderStatsData {
-  _id: string;
+//  Order Status
+export interface OrderStatusCount {
   status: string;
   count: number;
-  total: number;
-  percentageOfTotal: number;
 }
 
-export interface PaymentMethodStats {
+//  Live Orders
+export interface LiveOrder {
   _id: string;
-  count: number;
+  orderNumber: string;
+  customerName: string;
+  itemsCount: number;
   total: number;
-  percentage: number;
+  status: "pending" | "confirmed" | "preparing" | "out_for_delivery";
+  createdAt: string;
 }
 
-export interface CustomerStatsData {
-  newCustomers: number;
-  totalCustomers: number;
-  returningCustomers: number;
-  repeatRate: number;
+//  Summary Cards─
+export interface SummaryCards {
+  menu: {
+    published: number;
+    categories: number;
+    unavailable: number;
+  };
+  customers: {
+    total: number;
+    newToday: number;
+    blocked: number;
+  };
+  reviews: {
+    approved: number;
+    pending: number;
+    averageRating: number;
+  };
+  promotions: {
+    activeCoupons: number;
+    activeBanners: number;
+    activeAnnouncements: number;
+  };
 }
 
+//  Recent Orders─
+export interface RecentOrder {
+  _id: string;
+  orderNumber: string;
+  customerName: string;
+  itemsCount: number;
+  total: number;
+  status: string;
+  createdAt: string;
+}
+
+//  API
 export const dashboardAPI = {
-  getSummary: (period?: string) =>
-    client
-      .get(API_ENDPOINTS.DASHBOARD_SUMMARY, { params: { period } })
-      .then((r) => r.data.data as DashboardSummary)
-      .catch((error) => {
-        console.error("Failed to fetch dashboard summary:", error);
-        throw error;
-      }),
 
-  getRevenue: (params?: {
-    period?: string;
-    startDate?: string;
-    endDate?: string;
-    breakdown?: "category" | "paymentMethod" | "status";
-    groupBy?: "day" | "week" | "month";
-  }) =>
+  getToday: () =>
     client
-      .get(API_ENDPOINTS.DASHBOARD_REVENUE, { params })
-      .then((r) => r.data.data as RevenueDataPoint[])
-      .catch((error) => {
-        console.error("Failed to fetch revenue data:", error);
-        throw error;
-      }),
+      .get(API_ENDPOINTS.DASHBOARD_SUMMARY, { params: { period: "today" } })
+      .then((r) => r.data.data as TodaySnapshot),
 
-  getTopItems: (params?: {
-    limit?: number;
-    period?: string;
-    startDate?: string;
-    endDate?: string;
-  }) =>
+  getOrderStatus: () =>
     client
-      .get(API_ENDPOINTS.DASHBOARD_TOP_ITEMS, { params })
-      .then((r) => r.data.data as TopItemData[])
-      .catch((error) => {
-        console.error("Failed to fetch top items:", error);
-        throw error;
-      }),
+      .get(API_ENDPOINTS.DASHBOARD_TODAY_ORDER_STATUS)
+      .then((r) => r.data.data as OrderStatusCount[]),
 
-  getOrderStats: (params?: { startDate?: string; endDate?: string }) =>
+  getLiveOrders: () =>
     client
-      .get(API_ENDPOINTS.DASHBOARD_ORDER_STATS, { params })
-      .then((r) => r.data.data as OrderStatsData[])
-      .catch((error) => {
-        console.error("Failed to fetch order stats:", error);
-        throw error;
-      }),
+      .get(API_ENDPOINTS.DASHBOARD_LIVE_ORDERS)
+      .then((r) => r.data.data as LiveOrder[]),
 
-  getPaymentStats: (params?: { startDate?: string; endDate?: string }) =>
+  getSummaryCards: () =>
     client
-      .get(API_ENDPOINTS.DASHBOARD_PAYMENT_STATS, { params })
-      .then((r) => r.data.data as PaymentMethodStats[])
-      .catch((error) => {
-        console.error("Failed to fetch payment stats:", error);
-        throw error;
-      }),
+      .get(API_ENDPOINTS.DASHBOARD_SUMMARY_CARDS)
+      .then((r) => r.data.data as SummaryCards),
 
-  getCustomerStats: (params?: {
-    period?: string;
-    startDate?: string;
-    endDate?: string;
-  }) =>
+  getRecentOrders: () =>
     client
-      .get(API_ENDPOINTS.DASHBOARD_CUSTOMER_STATS, { params })
-      .then((r) => r.data.data as CustomerStatsData)
-      .catch((error) => {
-        console.error("Failed to fetch customer stats:", error);
-        throw error;
-      }),
-
-  getOrderAnalytics: (params?: {
-    startDate?: string;
-    endDate?: string;
-    groupBy?: "day" | "week" | "month";
-  }) =>
-    client
-      .get(API_ENDPOINTS.DASHBOARD_ORDER_ANALYTICS, { params })
-      .then((r) => r.data.data as RevenueDataPoint[])
-      .catch((error) => {
-        console.error("Failed to fetch order analytics:", error);
-        throw error;
-      }),
-
-  getComprehensive: (params?: {
-    period?: string;
-    startDate?: string;
-    endDate?: string;
-  }) =>
-    client
-      .get(API_ENDPOINTS.DASHBOARD_COMPREHENSIVE, { params })
-      .then((r) => r.data.data)
-      .catch((error) => {
-        console.error("Failed to fetch comprehensive dashboard:", error);
-        throw error;
-      }),
+      .get(API_ENDPOINTS.DASHBOARD_RECENT_ORDERS)
+      .then((r) => r.data.data as RecentOrder[]),
 };

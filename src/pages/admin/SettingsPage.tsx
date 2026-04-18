@@ -152,7 +152,7 @@ export default function SettingsPage() {
         <div className="glass-card rounded-xl p-6 space-y-5 max-w-2xl">
           <h3 className="text-sm font-semibold">Restaurant Details</h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label className="text-xs">Restaurant Name</Label>
               <Input
                 value={getRestaurantValue("name")}
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                 }
                 className="h-9 text-sm"
               />
-            </div>
+            </div> */}
             <div className="space-y-2">
               <Label className="text-xs">Phone</Label>
               <Input
@@ -182,7 +182,7 @@ export default function SettingsPage() {
                 className="h-9 text-sm"
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label className="text-xs">Email</Label>
               <Input
                 value={getRestaurantValue("email")}
@@ -191,7 +191,7 @@ export default function SettingsPage() {
                 }
                 className="h-9 text-sm"
               />
-            </div>
+            </div> */}
             <div className="space-y-2 sm:col-span-2">
               <Label className="text-xs">Address</Label>
               <Input

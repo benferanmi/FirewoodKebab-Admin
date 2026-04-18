@@ -84,7 +84,7 @@ export default function DeliveryReportTab({
         />
         <StatsCard
           title="Delivery Fee Revenue"
-          value={`$${(summary.totalDeliveryFeeRevenue / 1000).toFixed(1)}k`}
+          value={`$${(summary.totalDeliveryFeeRevenue ).toFixed(1)}k`}
           change={0}
           icon={DollarSign}
         />
@@ -190,7 +190,7 @@ export default function DeliveryReportTab({
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+              tickFormatter={(v) => `$${(v).toFixed(0)}`}
             />
             <Tooltip
               contentStyle={{
