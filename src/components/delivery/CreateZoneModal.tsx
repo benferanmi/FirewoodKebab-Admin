@@ -44,6 +44,7 @@ export default function CreateZoneModal({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
   const createZone = useCreateDeliveryZone();
 
   const handleAddZipCode = (e: React.KeyboardEvent) => {
@@ -63,30 +64,65 @@ export default function CreateZoneModal({
     setZipCodes(zipCodes.filter((z) => z !== zip));
   };
 
+  // ⭐ Clear field error when user edits it
+  const handleFieldChange = (
+    field: string,
+    value: string | boolean | number,
+  ) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error for this field when user starts editing
+    if (submitted && errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!form.name.trim()) newErrors.name = "Zone name is required";
+    // Basic fields
+    if (!form.name?.trim()) newErrors.name = "Zone name is required";
     if (!form.deliveryFee) newErrors.deliveryFee = "Delivery fee is required";
-    if (!form.minimumOrder) newErrors.minimumOrder = "Minimum order is required";
+    if (!form.minimumOrder)
+      newErrors.minimumOrder = "Minimum order is required";
     if (!form.estimatedDeliveryTimeMin)
       newErrors.timeMin = "Min delivery time is required";
     if (!form.estimatedDeliveryTimeMax)
       newErrors.timeMax = "Max delivery time is required";
 
-    if (zoneType === "zipcode" && zipCodes.length === 0) {
-      newErrors.zipCodes = "At least one ZIP code is required";
+    // Type-specific validation
+    if (zoneType === "zipcode") {
+      if (zipCodes.length === 0) {
+        newErrors.zipCodes = "At least one ZIP code is required";
+      }
+    } else if (zoneType === "radius") {
+      if (!form.centerLatitude || form.centerLatitude === "") {
+        newErrors.lat = "Latitude is required";
+      } else if (isNaN(Number(form.centerLatitude))) {
+        newErrors.lat = "Latitude must be a valid number";
+      }
+
+      if (!form.centerLongitude || form.centerLongitude === "") {
+        newErrors.lng = "Longitude is required";
+      } else if (isNaN(Number(form.centerLongitude))) {
+        newErrors.lng = "Longitude must be a valid number";
+      }
+
+      if (!form.radiusKm || form.radiusKm === "") {
+        newErrors.radius = "Radius is required";
+      } else if (isNaN(Number(form.radiusKm)) || Number(form.radiusKm) <= 0) {
+        newErrors.radius = "Radius must be a positive number";
+      }
     }
 
-    if (zoneType === "radius") {
-      if (!form.centerLatitude) newErrors.lat = "Latitude is required";
-      if (!form.centerLongitude) newErrors.lng = "Longitude is required";
-      if (!form.radiusKm) newErrors.radius = "Radius is required";
-    }
-
+    // Time validation
     const timeMin = Number(form.estimatedDeliveryTimeMin);
     const timeMax = Number(form.estimatedDeliveryTimeMax);
-    if (timeMin >= timeMax) {
+    if (timeMin && timeMax && timeMin >= timeMax) {
       newErrors.timeMin = "Min ETA must be less than Max ETA";
     }
 
@@ -95,7 +131,11 @@ export default function CreateZoneModal({
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) return;
+    setSubmitted(true);
+
+    if (!validateForm()) {
+      return; // Don't proceed if validation fails
+    }
 
     const data: Partial<IDeliveryZone> = {
       name: form.name,
@@ -119,6 +159,7 @@ export default function CreateZoneModal({
 
     createZone.mutate(data, {
       onSuccess: () => {
+        // Reset form
         setForm({
           name: "",
           description: "",
@@ -135,14 +176,39 @@ export default function CreateZoneModal({
         setZipCodes([]);
         setZipInput("");
         setErrors({});
+        setSubmitted(false);
         onOpenChange(false);
         onSuccess?.();
       },
     });
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Reset when closing
+      setForm({
+        name: "",
+        description: "",
+        deliveryFee: "",
+        minimumOrder: "",
+        estimatedDeliveryTimeMin: "",
+        estimatedDeliveryTimeMax: "",
+        active: true,
+        priority: "0",
+        centerLatitude: "",
+        centerLongitude: "",
+        radiusKm: "",
+      });
+      setZipCodes([]);
+      setZipInput("");
+      setErrors({});
+      setSubmitted(false);
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Delivery Zone</DialogTitle>
@@ -158,11 +224,11 @@ export default function CreateZoneModal({
                 <Label className="text-xs">Zone Name *</Label>
                 <Input
                   value={form.name}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
+                  onChange={(e) => handleFieldChange("name", e.target.value)}
                   placeholder="e.g., Orange County North"
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.name ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.name && (
                   <p className="text-xs text-red-500 mt-1">{errors.name}</p>
@@ -174,7 +240,7 @@ export default function CreateZoneModal({
                 <Textarea
                   value={form.description}
                   onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
+                    handleFieldChange("description", e.target.value)
                   }
                   placeholder="Optional description for this zone"
                   className="text-sm h-20 mt-1 resize-none"
@@ -186,7 +252,10 @@ export default function CreateZoneModal({
           {/* Zone Type */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Zone Type *</h3>
-            <RadioGroup value={zoneType} onValueChange={(v: any) => setZoneType(v)}>
+            <RadioGroup
+              value={zoneType}
+              onValueChange={(v: any) => setZoneType(v)}
+            >
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="zipcode" id="type-zip" />
                 <Label htmlFor="type-zip" className="text-sm cursor-pointer">
@@ -214,15 +283,15 @@ export default function CreateZoneModal({
                   onKeyDown={handleAddZipCode}
                   placeholder="Enter ZIP code (5 digits) and press Enter"
                   maxLength={5}
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.zipCodes ? "border-red-500" : ""
+                  }`}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Press Enter or comma to add
                 </p>
                 {errors.zipCodes && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.zipCodes}
-                  </p>
+                  <p className="text-xs text-red-500 mt-1">{errors.zipCodes}</p>
                 )}
               </div>
 
@@ -256,10 +325,12 @@ export default function CreateZoneModal({
                     step="0.0001"
                     value={form.centerLatitude}
                     onChange={(e) =>
-                      setForm({ ...form, centerLatitude: e.target.value })
+                      handleFieldChange("centerLatitude", e.target.value)
                     }
                     placeholder="33.6845"
-                    className="h-9 text-sm mt-1"
+                    className={`h-9 text-sm mt-1 ${
+                      errors.lat ? "border-red-500" : ""
+                    }`}
                   />
                   {errors.lat && (
                     <p className="text-xs text-red-500 mt-1">{errors.lat}</p>
@@ -273,10 +344,12 @@ export default function CreateZoneModal({
                     step="0.0001"
                     value={form.centerLongitude}
                     onChange={(e) =>
-                      setForm({ ...form, centerLongitude: e.target.value })
+                      handleFieldChange("centerLongitude", e.target.value)
                     }
                     placeholder="-117.8265"
-                    className="h-9 text-sm mt-1"
+                    className={`h-9 text-sm mt-1 ${
+                      errors.lng ? "border-red-500" : ""
+                    }`}
                   />
                   {errors.lng && (
                     <p className="text-xs text-red-500 mt-1">{errors.lng}</p>
@@ -290,15 +363,15 @@ export default function CreateZoneModal({
                     step="0.1"
                     value={form.radiusKm}
                     onChange={(e) =>
-                      setForm({ ...form, radiusKm: e.target.value })
+                      handleFieldChange("radiusKm", e.target.value)
                     }
                     placeholder="5.5"
-                    className="h-9 text-sm mt-1"
+                    className={`h-9 text-sm mt-1 ${
+                      errors.radius ? "border-red-500" : ""
+                    }`}
                   />
                   {errors.radius && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {errors.radius}
-                    </p>
+                    <p className="text-xs text-red-500 mt-1">{errors.radius}</p>
                   )}
                 </div>
               </div>
@@ -316,10 +389,12 @@ export default function CreateZoneModal({
                   step="0.01"
                   value={form.deliveryFee}
                   onChange={(e) =>
-                    setForm({ ...form, deliveryFee: e.target.value })
+                    handleFieldChange("deliveryFee", e.target.value)
                   }
                   placeholder="3.99"
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.deliveryFee ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.deliveryFee && (
                   <p className="text-xs text-red-500 mt-1">
@@ -335,10 +410,12 @@ export default function CreateZoneModal({
                   step="0.01"
                   value={form.minimumOrder}
                   onChange={(e) =>
-                    setForm({ ...form, minimumOrder: e.target.value })
+                    handleFieldChange("minimumOrder", e.target.value)
                   }
                   placeholder="15.00"
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.minimumOrder ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.minimumOrder && (
                   <p className="text-xs text-red-500 mt-1">
@@ -353,13 +430,15 @@ export default function CreateZoneModal({
                   type="number"
                   value={form.estimatedDeliveryTimeMin}
                   onChange={(e) =>
-                    setForm({
-                      ...form,
-                      estimatedDeliveryTimeMin: e.target.value,
-                    })
+                    handleFieldChange(
+                      "estimatedDeliveryTimeMin",
+                      e.target.value,
+                    )
                   }
                   placeholder="15"
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.timeMin ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.timeMin && (
                   <p className="text-xs text-red-500 mt-1">{errors.timeMin}</p>
@@ -372,13 +451,15 @@ export default function CreateZoneModal({
                   type="number"
                   value={form.estimatedDeliveryTimeMax}
                   onChange={(e) =>
-                    setForm({
-                      ...form,
-                      estimatedDeliveryTimeMax: e.target.value,
-                    })
+                    handleFieldChange(
+                      "estimatedDeliveryTimeMax",
+                      e.target.value,
+                    )
                   }
                   placeholder="30"
-                  className="h-9 text-sm mt-1"
+                  className={`h-9 text-sm mt-1 ${
+                    errors.timeMax ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.timeMax && (
                   <p className="text-xs text-red-500 mt-1">{errors.timeMax}</p>
@@ -397,7 +478,7 @@ export default function CreateZoneModal({
                   type="number"
                   value={form.priority}
                   onChange={(e) =>
-                    setForm({ ...form, priority: e.target.value })
+                    handleFieldChange("priority", e.target.value)
                   }
                   placeholder="0"
                   className="h-9 text-sm mt-1"
@@ -414,15 +495,12 @@ export default function CreateZoneModal({
         <div className="flex gap-2 justify-end pt-4 border-t">
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleOpenChange(false)}
             disabled={createZone.isPending}
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={createZone.isPending || Object.keys(errors).length > 0}
-          >
+          <Button onClick={handleSubmit} disabled={createZone.isPending}>
             <Save className="h-4 w-4 mr-2" />
             {createZone.isPending ? "Creating..." : "Create Zone"}
           </Button>

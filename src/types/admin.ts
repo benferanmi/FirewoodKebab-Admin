@@ -107,6 +107,8 @@ export interface Order {
   orderNumber: string;
   userId: UserData;
   guestName?: string;
+  guestPhone?: string;
+  guestEmail?: string;
   items: {
     menuItemId: string;
     menuItemName: string;

@@ -588,10 +588,10 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium text-foreground">
-                          {order.userId?.firstName} {order.userId?.lastName}
+                          {order.userId?.firstName || order.guestName || "-"} {order.userId?.lastName || ""}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {order.userId?.phone}
+                          {order.userId?.phone || order.guestPhone || "-"}
                         </p>
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -755,11 +755,11 @@ export default function OrdersPage() {
               {/* Customer info */}
               <div className="rounded-lg border border-border p-3 space-y-0.5">
                 <p className="text-sm font-medium">
-                  {selectedOrder.userId.firstName}{" "}
-                  {selectedOrder.userId.lastName}
+                  {selectedOrder.userId?.firstName || selectedOrder?.guestName || "-"}{" "}
+                  {selectedOrder.userId?.lastName || "-"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {selectedOrder.userId.email} · {selectedOrder.userId.phone}
+                  {selectedOrder.userId?.email || selectedOrder.guestEmail || "-"} · {selectedOrder.userId?.phone || selectedOrder.guestPhone ||"-"}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   Type: {selectedOrder.deliveryType}
